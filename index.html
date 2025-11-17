@@ -1,0 +1,3609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTA CAL Invoice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            padding: 15px;
+            background-color: #f5f5f5;
+            font-size: 14px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+            color: #1976D2;
+        }
+
+        .top-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .header-box {
+            background: #000;
+            color: white;
+            padding: 12px;
+        }
+
+        .header-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .header-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            font-size: 11px;
+            margin-bottom: 4px;
+            font-weight: bold;
+        }
+
+        .field input, .field select {
+            padding: 8px;
+            border: 2px solid #000;
+            font-size: 14px;
+        }
+        
+        .field input[type="number"] {
+            padding-left: 20px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .left-side, .right-side {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .section {
+            background: #f8f8f8;
+            border: 2px solid #000;
+            padding: 12px;
+        }
+
+        .section-title {
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            margin: -12px -12px 12px -12px;
+            font-weight: bold;
+            font-size: 13px;
+            border-bottom: 2px solid #000;
+        }
+
+        .par-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .par-btn {
+            padding: 10px;
+            border: 2px solid #000;
+            background: #e0e0e0;
+            color: #000;
+            font-weight: bold;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .par-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .par-btn.active {
+            background: #FF9800;
+            color: white;
+            border-color: #FF9800;
+        }
+
+        .par-fields {
+            display: none;
+            background: #fff3e0;
+            border: 2px solid #FF9800;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .par-fields.active {
+            display: block;
+        }
+
+        .par-fields-title {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #FF9800;
+        }
+
+        .par-input-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .par-addon-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 6px;
+            margin-bottom: 6px;
+            align-items: end;
+        }
+
+        .par-addon-row input,
+        .par-addon-row select {
+            padding: 6px 8px;
+            border: 2px solid #FF9800;
+            font-size: 12px;
+        }
+
+        .par-addon-row select {
+            padding-left: 8px;
+        }
+
+        .par-addon-row input[type="number"] {
+            padding-left: 20px;
+        }
+
+        .par-coating-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 6px;
+            margin-bottom: 6px;
+            align-items: end;
+        }
+
+        .par-coating-row select,
+        .par-coating-row input {
+            padding: 6px 8px;
+            border: 2px solid #FF9800;
+            font-size: 12px;
+        }
+
+        .par-coating-row input[type="number"] {
+            padding-left: 20px;
+        }
+
+        .par-coating-row .calc-display {
+            background: #fff3e0;
+            border: 2px solid #FF9800;
+            padding: 6px 8px;
+            font-weight: bold;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .custom-fields {
+            display: none;
+            grid-column: 1 / -1;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 6px;
+            margin-top: 6px;
+        }
+
+        .custom-fields.active {
+            display: grid;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        thead {
+            background: #000;
+            color: white;
+        }
+
+        th {
+            padding: 8px;
+            text-align: left;
+            font-size: 12px;
+            border: 2px solid #000;
+        }
+
+        td {
+            padding: 6px;
+            border: 2px solid #000;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        input[type="text"].table-input,
+        input[type="number"].table-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #000;
+            font-size: 13px;
+        }
+        
+        input[type="number"].table-input {
+            padding-left: 20px;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .add-btn {
+            width: 100%;
+            padding: 8px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .add-btn:hover {
+            background: #45a049;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .calc-box {
+            background: white;
+            padding: 10px;
+            border: 2px solid #000;
+            text-align: center;
+        }
+
+        .calc-box.highlight {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .calc-box.info {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+        }
+
+        .calc-box.warning {
+            background: #FF9800;
+            color: white;
+            border-color: #FF9800;
+        }
+
+        .calc-label {
+            font-size: 9px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .calc-value {
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .name-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .payout-label {
+            display: none;
+        }
+
+        .name-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .name-input {
+            padding: 6px 8px;
+            border: 2px solid #000;
+            font-size: 13px;
+        }
+
+        .name-amount {
+            background: #4CAF50;
+            color: white;
+            padding: 6px 12px;
+            font-weight: bold;
+            font-size: 14px;
+            min-width: 80px;
+            text-align: center;
+            border: 2px solid #000;
+        }
+
+        .initial-boxes {
+            display: none;
+        }
+
+        .button-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .action-btn {
+            padding: 12px;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .calculation-breakdown {
+            display: none;
+        }
+
+        .print-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .new-file-btn {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .payroll-btn {
+            background: #FF5722;
+            color: white;
+        }
+
+        /* MODAL STYLES */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            animation: slideDown 0.3s;
+        }
+
+        .modal-content.large {
+            max-width: 1200px;
+            max-height: 90vh;
+        }
+
+        @keyframes slideDown {
+            from { 
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to { 
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .close-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #d32f2f;
+            transform: rotate(90deg);
+        }
+
+        .modal-tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-bottom: 3px solid #9C27B0;
+            color: #9C27B0;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .add-name-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .add-name-section input {
+            flex: 1;
+            padding: 10px 12px;
+            border: 2px solid #9C27B0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .add-name-section button {
+            padding: 10px 20px;
+            background: #9C27B0;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .add-name-section button:hover {
+            background: #7B1FA2;
+        }
+
+        .names-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .name-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .name-item:hover {
+            border-color: #9C27B0;
+            background: #fce4ec;
+        }
+
+        .name-item span {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .delete-name-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .delete-name-btn:hover {
+            background: #d32f2f;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 2px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .name-select {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #000;
+            font-size: 13px;
+            background: white;
+            cursor: pointer;
+        }
+
+        .name-select option {
+            padding: 8px;
+        }
+
+        /* PAY PERIOD STYLES */
+        .pay-period-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            transition: all 0.2s;
+        }
+
+        .pay-period-item:hover {
+            border-color: #673AB7;
+            background: #ede7f6;
+        }
+
+        .pay-period-info {
+            flex: 1;
+        }
+
+        .pay-period-name {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #333;
+        }
+
+        .pay-period-dates {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .pay-period-badge {
+            background: #673AB7;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .period-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .period-form-grid.full {
+            grid-template-columns: 1fr;
+        }
+
+        .period-input {
+            padding: 10px 12px;
+            border: 2px solid #673AB7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .quick-period-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .quick-period-btn {
+            padding: 10px;
+            background: #ede7f6;
+            border: 2px solid #673AB7;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #673AB7;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-period-btn:hover {
+            background: #673AB7;
+            color: white;
+        }
+
+        .filter-section {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .filter-label {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #673AB7;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* PAYROLL SUMMARY STYLES */
+        .invoice-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .invoice-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f5f5f5;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .invoice-item:hover {
+            border-color: #FF5722;
+            background: #fff3e0;
+        }
+
+        .invoice-item input[type="checkbox"] {
+            margin-right: 15px;
+        }
+
+        .invoice-item-details {
+            flex: 1;
+        }
+
+        .invoice-item-title {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .invoice-item-subtitle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .invoice-period-badge {
+            background: #673AB7;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .summary-table th {
+            background: #1976D2;
+            color: white;
+            padding: 15px 20px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: bold;
+            border: none;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+
+        .summary-table tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .summary-table .job-cell {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            color: #212121;
+        }
+
+        .summary-table .customer-cell {
+            font-family: Arial, sans-serif;
+            font-size: 15px;
+            color: #424242;
+        }
+
+        .summary-table .amount-cell {
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            text-align: right;
+            color: #212121;
+        }
+
+        .summary-table .grand-total-row {
+            background: #FF5722 !important;
+            color: white !important;
+            border: none !important;
+        }
+
+        .summary-table .grand-total-row td {
+            padding: 18px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none !important;
+            color: white !important;
+        }
+
+        @media print {
+            /* Hide modals during invoice print */
+            .modal {
+                display: none !important;
+            }
+            
+            body {
+                padding: 0;
+                background: white;
+                font-size: 13px;
+                color: black !important;
+            }
+            * {
+                color: black !important;
+            }
+            .container {
+                padding: 8px;
+                max-width: 100%;
+            }
+            h1 {
+                font-size: 18px;
+                margin-bottom: 8px;
+                color: black !important;
+            }
+            .top-section {
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            .header-box {
+                padding: 8px;
+                background: white !important;
+                border: none !important;
+            }
+            .header-row {
+                gap: 6px;
+                margin-bottom: 5px;
+            }
+            .field label {
+                font-size: 9px;
+                margin-bottom: 2px;
+                color: black !important;
+            }
+            .field input, .field select {
+                padding: 5px;
+                font-size: 11px;
+                color: black !important;
+                border: 1px solid black !important;
+            }
+            .main-grid {
+                gap: 8px;
+                margin-bottom: 8px;
+            }
+            .left-side, .right-side {
+                gap: 8px;
+            }
+            .section {
+                padding: 8px;
+                border: 2px solid black !important;
+                background: white !important;
+            }
+            .section-title {
+                padding: 5px 8px;
+                margin: -8px -8px 8px -8px;
+                font-size: 13px;
+                background: white !important;
+                color: black !important;
+                border-bottom: 2px solid black !important;
+            }
+            .par-buttons {
+                display: none;
+            }
+            .par-fields {
+                background: white !important;
+                border: 2px solid black !important;
+                padding: 8px !important;
+                margin-bottom: 8px !important;
+                page-break-inside: avoid;
+            }
+            .par-fields.active {
+                display: block !important;
+            }
+            .par-fields-title {
+                font-size: 11px !important;
+                margin-bottom: 6px !important;
+                color: black !important;
+                font-weight: bold !important;
+            }
+            .par-input-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 6px !important;
+            }
+            .par-addon-row {
+                gap: 4px !important;
+                margin-bottom: 4px !important;
+                grid-template-columns: 2fr 1fr 1fr 1fr !important;
+            }
+            .par-addon-row button {
+                display: none !important;
+            }
+            .par-addon-row input,
+            .par-addon-row select {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+                border: 1px solid black !important;
+                color: black !important;
+            }
+            .par-coating-row {
+                display: grid !important;
+                grid-template-columns: 2fr 1fr 1fr 1fr !important;
+                gap: 4px !important;
+                margin-bottom: 4px !important;
+            }
+            .par-coating-row button {
+                display: none !important;
+            }
+            .par-coating-row select,
+            .par-coating-row input {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+                border: 1px solid black !important;
+                color: black !important;
+            }
+            .par-coating-row .calc-display {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+                border: 1px solid black !important;
+                color: black !important;
+                background: white !important;
+                text-align: center !important;
+            }
+            .custom-fields {
+                display: grid !important;
+                grid-template-columns: 2fr 1fr 1fr 1fr !important;
+                gap: 4px !important;
+                margin-bottom: 4px !important;
+            }
+            .custom-fields button {
+                display: none !important;
+            }
+            .custom-fields.active {
+                display: grid !important;
+            }
+            .custom-fields input {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+                border: 1px solid black !important;
+                color: black !important;
+            }
+            .custom-fields .calc-display {
+                padding: 4px 6px !important;
+                font-size: 10px !important;
+                border: 1px solid black !important;
+                color: black !important;
+                background: white !important;
+                text-align: center !important;
+            }
+            table {
+                margin-bottom: 6px;
+                font-size: 10px;
+            }
+            th {
+                padding: 5px;
+                font-size: 10px;
+                background: white !important;
+                color: black !important;
+                border: 1px solid black !important;
+            }
+            td {
+                padding: 4px;
+                border: 1px solid black !important;
+                color: black !important;
+            }
+            input[type="text"].table-input,
+            input[type="number"].table-input {
+                padding: 4px 5px;
+                font-size: 10px;
+                color: black !important;
+                border: 1px solid black !important;
+            }
+            input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+            }
+            .calc-grid {
+                gap: 6px;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .calc-box {
+                padding: 8px;
+                background: white !important;
+                border: 2px solid black !important;
+            }
+            .calc-label {
+                font-size: 8px;
+                margin-bottom: 3px;
+                color: black !important;
+            }
+            .calc-value {
+                font-size: 14px;
+                color: black !important;
+            }
+            .input-grid {
+                gap: 6px;
+                margin-bottom: 6px;
+            }
+            .name-list {
+                gap: 5px;
+                margin-top: 5px;
+            }
+            
+            .payout-label {
+                display: block !important;
+                font-size: 13px !important;
+                font-weight: bold !important;
+                color: black !important;
+                background: white !important;
+                border: 2px solid black !important;
+                padding: 6px 10px;
+                margin-bottom: 6px;
+                text-align: center;
+            }
+            
+            .name-row {
+                display: grid !important;
+                grid-template-columns: 2.4fr 1.2fr 0.7fr 0.7fr;
+                gap: 6px;
+                align-items: center;
+                margin-bottom: 8px;
+            }
+            
+            .name-row > *[style*="display: none"] {
+                display: none !important;
+                grid-column: 1;
+            }
+            
+            .name-row .name-select,
+            .name-row .name-input {
+                grid-column: 1;
+            }
+            
+            .name-input {
+                padding: 6px 10px !important;
+                font-size: 10px !important;
+                font-weight: bold !important;
+                color: black !important;
+                border: 2px solid black !important;
+                box-sizing: border-box !important;
+            }
+            .name-select {
+                padding: 6px 10px !important;
+                font-size: 10px !important;
+                font-weight: bold !important;
+                color: black !important;
+                border: 2px solid black !important;
+                box-sizing: border-box !important;
+                appearance: none;
+                -webkit-appearance: none;
+                -moz-appearance: none;
+                background: white !important;
+            }
+            .name-amount {
+                padding: 8px 4px !important;
+                font-size: 16px !important;
+                font-weight: bold !important;
+                background: white !important;
+                color: black !important;
+                border: 2px solid black !important;
+                text-align: center !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+                white-space: nowrap !important;
+            }
+            .initial-boxes {
+                display: contents !important;
+            }
+            .initial-box {
+                display: flex !important;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 2px;
+            }
+            .initial-box-square {
+                width: 42px !important;
+                height: 42px !important;
+                border: 2px solid black !important;
+                background: white !important;
+            }
+            .initial-box-label {
+                font-size: 6px !important;
+                color: black !important;
+                text-align: center !important;
+                font-weight: bold !important;
+                line-height: 1.1 !important;
+                max-width: 42px;
+            }
+            .button-section, .add-btn {
+                display: none;
+            }
+            .calculation-breakdown {
+                display: block !important;
+                page-break-before: always;
+                padding: 20px !important;
+                background: white !important;
+            }
+            .breakdown-title {
+                font-size: 19px !important;
+                font-weight: bold !important;
+                text-align: center !important;
+                margin-bottom: 12px !important;
+                padding: 12px !important;
+                border: 3px solid black !important;
+                background: white !important;
+                color: black !important;
+            }
+            .breakdown-section {
+                margin-bottom: 12px !important;
+                padding: 12px !important;
+                border: 2px solid black !important;
+                background: white !important;
+            }
+            .breakdown-section-title {
+                font-size: 14px !important;
+                font-weight: bold !important;
+                margin-bottom: 8px !important;
+                color: black !important;
+                text-decoration: underline;
+            }
+            .breakdown-line {
+                display: flex !important;
+                justify-content: space-between !important;
+                padding: 3px 0 !important;
+                font-size: 12px !important;
+                color: black !important;
+            }
+            .breakdown-line.total {
+                font-weight: bold !important;
+                border-top: 2px solid black !important;
+                margin-top: 6px !important;
+                padding-top: 6px !important;
+                font-size: 13px !important;
+            }
+            @page {
+                margin: 0.4in 0.35in;
+                size: letter;
+            }
+        }
+
+        /* PRINT STYLES FOR PAYROLL SUMMARY */
+        @media print {
+            .modal {
+                display: block !important;
+                position: static !important;
+                background: white !important;
+            }
+            .modal-content {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                max-height: none !important;
+                border-radius: 0 !important;
+            }
+            .modal-header, .modal-footer, .invoice-list, .filter-section {
+                display: none !important;
+            }
+            .modal-body {
+                padding: 20px !important;
+            }
+            .summary-table {
+                page-break-inside: avoid;
+                box-shadow: none !important;
+                margin-top: 0 !important;
+            }
+            .summary-table th {
+                background: white !important;
+                color: black !important;
+                border: 2px solid black !important;
+                padding: 12px 15px !important;
+                font-size: 13px !important;
+            }
+            .summary-table td {
+                border: 1px solid black !important;
+                padding: 10px 15px !important;
+                color: black !important;
+            }
+            .summary-table .job-cell {
+                font-size: 15px !important;
+                font-weight: bold !important;
+                color: black !important;
+            }
+            .summary-table .customer-cell {
+                font-size: 14px !important;
+                color: black !important;
+            }
+            .summary-table .amount-cell {
+                font-size: 15px !important;
+                font-weight: bold !important;
+                color: black !important;
+            }
+            .summary-table .grand-total-row {
+                background: #d0d0d0 !important;
+                border: 3px solid black !important;
+            }
+            .summary-table .grand-total-row td {
+                font-size: 16px !important;
+                font-weight: bold !important;
+                color: black !important;
+                border: none !important;
+            }
+            .summary-table tbody tr:hover {
+                background-color: transparent !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ALTA CAL - INVOICE SHEET</h1>
+
+        <div class="top-section">
+            <div class="header-box">
+                <div class="header-row" style="grid-template-columns: 1fr;">
+                    <div class="field">
+                        <label>CUSTOMER NAME</label>
+                        <input type="text" id="customerName">
+                    </div>
+                </div>
+                <div class="header-row">
+                    <div class="field">
+                        <label>JOB NUMBER</label>
+                        <input type="text" id="jobNumber">
+                    </div>
+                    <div class="field">
+                        <label>FULL AMOUNT OF MONEY IN BANK DATE</label>
+                        <input type="date" id="moneyInBank">
+                    </div>
+                </div>
+                <div class="header-row">
+                    <div class="field">
+                        <label>CONTRACT AMOUNT</label>
+                        <input type="number" id="contractAmount" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                    </div>
+                    <div class="field">
+                        <label>NET AMOUNT</label>
+                        <input type="number" id="netAmount" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                    </div>
+                </div>
+                <div class="header-row" style="grid-template-columns: 1fr;">
+                    <div class="field">
+                        <label>PAY PERIOD</label>
+                        <select id="payPeriodSelect">
+                            <option value="">None / Not Assigned</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-box">
+                <div class="calc-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div class="calc-box warning">
+                        <div class="calc-label">HOUSE FEE %</div>
+                        <div class="calc-value" id="houseFeePercent">0%</div>
+                    </div>
+                    <div class="calc-box info">
+                        <div class="calc-label">TOTAL JOB COST</div>
+                        <div class="calc-value" id="totalJobCost">$0</div>
+                    </div>
+                    <div class="calc-box info">
+                        <div class="calc-label">AFTER FEES</div>
+                        <div class="calc-value" id="totalAfterFees">$0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="left-side">
+                <!-- INVOICE TABLE -->
+                <div class="section">
+                    <div class="section-title">INVOICE ITEMS</div>
+                    <table id="invoiceTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 50%;">LABOR & MATERIAL</th>
+                                <th style="width: 30%;">COST</th>
+                                <th style="width: 20%;">PAID</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoiceTableBody"></tbody>
+                    </table>
+                    <button class="add-btn" onclick="addInvoiceRow()">+ ADD ROW</button>
+                </div>
+
+                <!-- FEES & BONUSES -->
+                <div class="section">
+                    <div class="section-title">FEES & BONUSES</div>
+                    <div class="input-grid">
+                        <div class="field">
+                            <label>RIDE ALONG FEE/ADDITIONAL FEES</label>
+                            <input type="number" id="rideAlongFee" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                        </div>
+                        <div class="field">
+                            <label>RIDE ALONG BONUS</label>
+                            <input type="number" id="rideAlongBonus" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                        </div>
+                        <div class="calc-box">
+                            <div class="calc-label">FEE PER PERSON</div>
+                            <div class="calc-value" id="rideAlongFeePerPerson">$0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-side">
+                <!-- VETS -->
+                <div class="section">
+                    <div class="section-title">PROJECTED VET PAYOUTS</div>
+                    <div class="input-grid">
+                        <div class="field">
+                            <label>NUMBER OF VETS</label>
+                            <input type="number" id="numVets" step="1" inputmode="numeric">
+                        </div>
+                        <div class="calc-box warning" id="vetRateBox" style="display: none;">
+                            <div class="calc-label">RATE</div>
+                            <div class="calc-value" id="vetRate">25%</div>
+                        </div>
+                        <div class="calc-box highlight" id="vetPayoutBox" style="display: none;">
+                            <div class="calc-label">PER VET</div>
+                            <div class="calc-value" id="finalPerVet">$0</div>
+                        </div>
+                    </div>
+                    <div id="vetNamesList" class="name-list"></div>
+                </div>
+
+                <!-- REPS -->
+                <div class="section">
+                    <div class="section-title">PROJECTED REP PAYOUTS</div>
+                    
+                    <div style="background: #fff3e0; border: 2px solid #FF9800; padding: 8px; margin-bottom: 12px; font-size: 11px; text-align: center; font-weight: bold; color: #F57C00;">
+                        💡 TIP: You can select MULTIPLE PAR types (e.g., Gutters + Insulation). Net amount will be divided automatically!
+                    </div>
+                    
+                    <!-- PAR BUTTONS -->
+                    <div class="par-buttons">
+                        <button class="par-btn" id="parGuttersBtn" onclick="togglePAR('gutters')">PAR GUTTERS</button>
+                        <button class="par-btn" id="parInsulationBtn" onclick="togglePAR('insulation')">PAR INSULATION</button>
+                        <button class="par-btn" id="parCoatingBtn" onclick="togglePAR('coating')">PAR COATING</button>
+                    </div>
+
+                    <!-- PAR GUTTERS FIELDS -->
+                    <div class="par-fields" id="parGuttersFields">
+                        <div class="par-fields-title">PAR GUTTERS CALCULATION</div>
+                        <div class="par-input-grid">
+                            <div class="field">
+                                <label>GUTTERS (Linear Feet) @ $27/lf</label>
+                                <input type="number" id="guttersLF" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                            </div>
+                            <div class="field">
+                                <label>ADDITIONAL WOOD (Linear Feet) @ $17/lf</label>
+                                <input type="number" id="woodLF" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                            </div>
+                        </div>
+                        
+                        <!-- PAR ADD-ONS -->
+                        <div id="parAddOnsSection" style="margin-top: 12px;">
+                            <div id="parAddOnsTitle" style="font-weight: bold; font-size: 11px; margin-bottom: 8px; color: #FF9800; display: none;">PAR ADD-ONS</div>
+                            <div id="parAddOnsList"></div>
+                            <button class="add-btn" onclick="addParAddOn()" style="margin-top: 8px;">+ ADD PAR LINE ITEM</button>
+                        </div>
+                        
+                        <div class="calc-box warning" style="margin-top: 12px;">
+                            <div class="calc-label">TOTAL PAR AMOUNT</div>
+                            <div class="calc-value" id="parGuttersAmount">$0</div>
+                        </div>
+                    </div>
+
+                    <!-- PAR INSULATION FIELDS -->
+                    <div class="par-fields" id="parInsulationFields">
+                        <div class="par-fields-title">PAR INSULATION CALCULATION</div>
+                        <div class="par-input-grid">
+                            <div class="field">
+                                <label>INSULATION (Square Feet) @ $4/sf</label>
+                                <input type="number" id="insulationSF" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                            </div>
+                            <div class="field">
+                                <label>ADDITIONAL WOOD (Linear Feet) @ $17/lf</label>
+                                <input type="number" id="insulationWoodLF" step="0.01" inputmode="decimal" style="padding-left: 20px;">
+                            </div>
+                        </div>
+                        
+                        <!-- PAR ADD-ONS FOR INSULATION -->
+                        <div id="parInsulationAddOnsSection" style="margin-top: 12px;">
+                            <div id="parInsulationAddOnsTitle" style="font-weight: bold; font-size: 11px; margin-bottom: 8px; color: #FF9800; display: none;">PAR ADD-ONS</div>
+                            <div id="parInsulationAddOnsList"></div>
+                            <button class="add-btn" onclick="addParInsulationAddOn()" style="margin-top: 8px;">+ ADD PAR LINE ITEM</button>
+                        </div>
+                        
+                        <div class="calc-box warning" style="margin-top: 12px;">
+                            <div class="calc-label">TOTAL PAR AMOUNT</div>
+                            <div class="calc-value" id="parInsulationAmount">$0</div>
+                        </div>
+                    </div>
+
+                    <!-- PAR COATING FIELDS -->
+                    <div class="par-fields" id="parCoatingFields">
+                        <div class="par-fields-title">PAR COATING CALCULATION</div>
+                        
+                        <!-- COATING PRODUCTS -->
+                        <div id="parCoatingProductsSection">
+                            <div id="parCoatingProductsList"></div>
+                            <button class="add-btn" onclick="addParCoatingProduct()" style="margin-top: 8px;">+ ADD PRODUCT</button>
+                        </div>
+                        
+                        <div class="calc-box warning" style="margin-top: 12px;">
+                            <div class="calc-label">TOTAL PAR AMOUNT</div>
+                            <div class="calc-value" id="parCoatingAmount">$0</div>
+                        </div>
+                    </div>
+
+                    <div class="input-grid" style="grid-template-columns: 1fr 1fr;">
+                        <div class="field">
+                            <label>NUMBER OF REPS</label>
+                            <input type="number" id="numReps" step="1" inputmode="numeric">
+                        </div>
+                        <div class="calc-box warning" id="repRateBox" style="display: none;">
+                            <div class="calc-label">RATE</div>
+                            <div class="calc-value" id="repRate">20%</div>
+                        </div>
+                    </div>
+                    <span id="finalPerRep" style="display: none;">$0</span>
+                    <div id="repNamesList" class="name-list"></div>
+                </div>
+
+                <!-- RIDE ALONGS -->
+                <div class="section">
+                    <div class="section-title">RIDE ALONG PAYOUTS</div>
+                    <div class="input-grid">
+                        <div class="field">
+                            <label>NUMBER OF RIDE ALONGS</label>
+                            <input type="number" id="numRideAlongs" step="1" inputmode="numeric">
+                        </div>
+                        <div class="calc-box highlight">
+                            <div class="calc-label">PER RIDE ALONG</div>
+                            <div class="calc-value" id="perRideAlong">$0</div>
+                        </div>
+                        <div class="calc-box highlight">
+                            <div class="calc-label">TOTAL RA PAYOUT</div>
+                            <div class="calc-value" id="totalRideAlongPayout">$0</div>
+                        </div>
+                    </div>
+                    <div id="rideAlongNamesList" class="name-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CALCULATION BREAKDOWN (Print Only) -->
+        <div class="calculation-breakdown">
+            <div class="breakdown-title">CALCULATION BREAKDOWN</div>
+            <div id="breakdownContent"></div>
+        </div>
+
+        <div class="button-section">
+            <button class="action-btn print-btn" onclick="printInvoice()">🖨️ PRINT</button>
+            <button class="action-btn" style="background: #9C27B0; color: white;" onclick="openManageNamesModal()">👥 MANAGE NAMES</button>
+            <button class="action-btn" style="background: #673AB7; color: white;" onclick="openPayPeriodsModal()">📅 PAY PERIODS</button>
+            <button class="action-btn payroll-btn" onclick="openPayrollSummary()">📊 PAYROLL SUMMARY</button>
+            <button class="action-btn new-file-btn" onclick="saveAndNew()">💾 SAVE & NEW</button>
+        </div>
+
+        <!-- MANAGE NAMES MODAL -->
+        <div id="manageNamesModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Manage Saved Names</h2>
+                    <button class="close-btn" onclick="closeManageNamesModal()">✕</button>
+                </div>
+                
+                <div class="modal-tabs">
+                    <button class="tab-btn active" onclick="switchTab('vets')">VETS</button>
+                    <button class="tab-btn" onclick="switchTab('reps')">REPS</button>
+                    <button class="tab-btn" onclick="switchTab('rideAlongs')">RIDE ALONGS</button>
+                </div>
+
+                <div class="modal-body">
+                    <!-- VETS TAB -->
+                    <div id="vetsTab" class="tab-content active">
+                        <div class="add-name-section">
+                            <input type="text" id="newVetName" placeholder="Enter vet name..." onkeypress="if(event.key==='Enter') addNameToList('vets')">
+                            <button onclick="addNameToList('vets')">+ ADD VET</button>
+                        </div>
+                        <div id="vetsList" class="names-list"></div>
+                    </div>
+
+                    <!-- REPS TAB -->
+                    <div id="repsTab" class="tab-content">
+                        <div class="add-name-section">
+                            <input type="text" id="newRepName" placeholder="Enter rep name..." onkeypress="if(event.key==='Enter') addNameToList('reps')">
+                            <button onclick="addNameToList('reps')">+ ADD REP</button>
+                        </div>
+                        <div id="repsList" class="names-list"></div>
+                    </div>
+
+                    <!-- RIDE ALONGS TAB -->
+                    <div id="rideAlongsTab" class="tab-content">
+                        <div class="add-name-section">
+                            <input type="text" id="newRideAlongName" placeholder="Enter ride along name..." onkeypress="if(event.key==='Enter') addNameToList('rideAlongs')">
+                            <button onclick="addNameToList('rideAlongs')">+ ADD RIDE ALONG</button>
+                        </div>
+                        <div id="rideAlongsList" class="names-list"></div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="action-btn" style="background: #4CAF50; color: white;" onclick="closeManageNamesModal()">DONE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAY PERIODS MODAL -->
+        <div id="payPeriodsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Manage Pay Periods</h2>
+                    <button class="close-btn" onclick="closePayPeriodsModal()">✕</button>
+                </div>
+
+                <div class="modal-body">
+                    <h3 style="margin-bottom: 15px;">Quick Create Pay Period:</h3>
+                    <div class="quick-period-buttons">
+                        <button class="quick-period-btn" onclick="quickCreatePeriod('week')">📅 This Week</button>
+                        <button class="quick-period-btn" onclick="quickCreatePeriod('biweek')">📅 Bi-Weekly</button>
+                        <button class="quick-period-btn" onclick="quickCreatePeriod('month')">📅 This Month</button>
+                    </div>
+
+                    <h3 style="margin: 25px 0 15px 0;">Create Custom Pay Period:</h3>
+                    <div class="period-form-grid full">
+                        <input type="text" id="newPeriodName" class="period-input" placeholder="Pay period name (e.g., 'Week of Nov 15-21, 2024')">
+                    </div>
+                    <div class="period-form-grid">
+                        <input type="date" id="newPeriodStart" class="period-input">
+                        <input type="date" id="newPeriodEnd" class="period-input">
+                    </div>
+                    <button class="add-btn" onclick="createPayPeriod()" style="margin-bottom: 25px;">+ CREATE PAY PERIOD</button>
+
+                    <h3 style="margin-bottom: 15px;">Saved Pay Periods:</h3>
+                    <div id="payPeriodsList"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="action-btn" style="background: #4CAF50; color: white;" onclick="closePayPeriodsModal()">DONE</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAYROLL SUMMARY MODAL -->
+        <div id="payrollSummaryModal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h2>Invoice Ledger & Payroll Summary</h2>
+                    <button class="close-btn" onclick="closePayrollSummary()">✕</button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="filter-section">
+                        <div class="filter-label">Filter by Pay Period:</div>
+                        <select id="periodFilter" class="filter-select" onchange="updatePayrollSummary()">
+                            <option value="all">All Invoices</option>
+                        </select>
+                    </div>
+
+                    <h3 style="margin-bottom: 15px;">Select Invoices to Include:</h3>
+                    <div id="invoiceListContainer" class="invoice-list"></div>
+                    
+                    <div id="summaryTableContainer"></div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="action-btn print-btn" onclick="printPayrollSummary()">🖨️ PRINT LEDGER</button>
+                    <button class="action-btn" style="background: #f44336; color: white;" onclick="clearAllInvoices()">🗑️ CLEAR ALL INVOICES</button>
+                    <button class="action-btn" style="background: #4CAF50; color: white;" onclick="closePayrollSummary()">CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activePARs = new Set(); // Can track multiple active PAR types
+        let currentInvoiceId = null;
+
+        let savedNames = {
+            vets: [],
+            reps: [],
+            rideAlongs: []
+        };
+
+        let payPeriods = [];
+
+        function loadSavedNames() {
+            const stored = localStorage.getItem('altaCalSavedNames');
+            if (stored) {
+                savedNames = JSON.parse(stored);
+            }
+        }
+
+        function saveSavedNames() {
+            localStorage.setItem('altaCalSavedNames', JSON.stringify(savedNames));
+        }
+
+        function loadPayPeriods() {
+            const stored = localStorage.getItem('altaCalPayPeriods');
+            if (stored) {
+                payPeriods = JSON.parse(stored);
+            }
+            updatePayPeriodSelects();
+        }
+
+        function savePayPeriods() {
+            localStorage.setItem('altaCalPayPeriods', JSON.stringify(payPeriods));
+            updatePayPeriodSelects();
+        }
+
+        function updatePayPeriodSelects() {
+            const selects = [
+                document.getElementById('payPeriodSelect'),
+                document.getElementById('periodFilter')
+            ];
+
+            const currentValue = document.getElementById('payPeriodSelect').value;
+
+            selects.forEach(select => {
+                if (select.id === 'payPeriodSelect') {
+                    select.innerHTML = '<option value="">None / Not Assigned</option>';
+                    payPeriods.forEach(period => {
+                        const option = document.createElement('option');
+                        option.value = period.id;
+                        option.textContent = period.name;
+                        select.appendChild(option);
+                    });
+                    select.value = currentValue;
+                } else if (select.id === 'periodFilter') {
+                    select.innerHTML = '<option value="all">All Invoices</option>';
+                    payPeriods.forEach(period => {
+                        const option = document.createElement('option');
+                        option.value = period.id;
+                        option.textContent = period.name;
+                        select.appendChild(option);
+                    });
+                }
+            });
+        }
+
+        function openPayPeriodsModal() {
+            document.getElementById('payPeriodsModal').classList.add('active');
+            renderPayPeriodsList();
+        }
+
+        function closePayPeriodsModal() {
+            document.getElementById('payPeriodsModal').classList.remove('active');
+        }
+
+        function quickCreatePeriod(type) {
+            const today = new Date();
+            let startDate, endDate, name;
+
+            if (type === 'week') {
+                const dayOfWeek = today.getDay();
+                const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                startDate = new Date(today);
+                startDate.setDate(today.getDate() + mondayOffset);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 6);
+                
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                name = `Week of ${monthNames[startDate.getMonth()]} ${startDate.getDate()}-${endDate.getDate()}, ${startDate.getFullYear()}`;
+                
+            } else if (type === 'biweek') {
+                const dayOfWeek = today.getDay();
+                const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+                startDate = new Date(today);
+                startDate.setDate(today.getDate() + mondayOffset);
+                endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + 13);
+                
+                const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                name = `Bi-Weekly ${monthNames[startDate.getMonth()]} ${startDate.getDate()}-${endDate.getDate()}, ${startDate.getFullYear()}`;
+                
+            } else if (type === 'month') {
+                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                
+                const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                name = `${monthNames[today.getMonth()]} ${today.getFullYear()}`;
+            }
+
+            document.getElementById('newPeriodName').value = name;
+            document.getElementById('newPeriodStart').value = startDate.toISOString().split('T')[0];
+            document.getElementById('newPeriodEnd').value = endDate.toISOString().split('T')[0];
+        }
+
+        function createPayPeriod() {
+            const name = document.getElementById('newPeriodName').value.trim();
+            const startDate = document.getElementById('newPeriodStart').value;
+            const endDate = document.getElementById('newPeriodEnd').value;
+
+            if (!name) {
+                alert('Please enter a pay period name');
+                return;
+            }
+
+            if (!startDate || !endDate) {
+                alert('Please select start and end dates');
+                return;
+            }
+
+            const newPeriod = {
+                id: Date.now().toString(),
+                name: name,
+                startDate: startDate,
+                endDate: endDate,
+                created: new Date().toISOString()
+            };
+
+            payPeriods.push(newPeriod);
+            payPeriods.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+            savePayPeriods();
+            renderPayPeriodsList();
+
+            document.getElementById('newPeriodName').value = '';
+            document.getElementById('newPeriodStart').value = '';
+            document.getElementById('newPeriodEnd').value = '';
+
+            alert(`✅ Pay period "${name}" created!`);
+        }
+
+        function renderPayPeriodsList() {
+            const container = document.getElementById('payPeriodsList');
+
+            if (payPeriods.length === 0) {
+                container.innerHTML = '<div class="empty-state">No pay periods created yet. Use the quick buttons or custom form above to create one!</div>';
+                return;
+            }
+
+            container.innerHTML = payPeriods.map(period => {
+                const start = new Date(period.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                const end = new Date(period.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                
+                const allInvoices = JSON.parse(localStorage.getItem('altaCalInvoices') || '[]');
+                const invoiceCount = allInvoices.filter(inv => inv.payPeriodId === period.id).length;
+
+                return `
+                    <div class="pay-period-item">
+                        <div class="pay-period-info">
+                            <div class="pay-period-name">${period.name}</div>
+                            <div class="pay-period-dates">${start} - ${end}</div>
+                        </div>
+                        ${invoiceCount > 0 ? `<span class="pay-period-badge">${invoiceCount} invoice${invoiceCount !== 1 ? 's' : ''}</span>` : ''}
+                        <button class="delete-name-btn" onclick="deletePayPeriod('${period.id}')">✕ Delete</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function deletePayPeriod(periodId) {
+            const period = payPeriods.find(p => p.id === periodId);
+            if (!period) return;
+
+            const allInvoices = JSON.parse(localStorage.getItem('altaCalInvoices') || '[]');
+            const linkedInvoices = allInvoices.filter(inv => inv.payPeriodId === periodId).length;
+
+            let message = `Delete pay period "${period.name}"?`;
+            if (linkedInvoices > 0) {
+                message += `\n\n⚠️ ${linkedInvoices} invoice${linkedInvoices !== 1 ? 's are' : ' is'} currently assigned to this period.\nThey will be set to "Not Assigned" but will NOT be deleted.`;
+            }
+
+            if (confirm(message)) {
+                payPeriods = payPeriods.filter(p => p.id !== periodId);
+                
+                if (linkedInvoices > 0) {
+                    const updatedInvoices = allInvoices.map(inv => {
+                        if (inv.payPeriodId === periodId) {
+                            return { ...inv, payPeriodId: '' };
+                        }
+                        return inv;
+                    });
+                    localStorage.setItem('altaCalInvoices', JSON.stringify(updatedInvoices));
+                }
+                
+                savePayPeriods();
+                renderPayPeriodsList();
+            }
+        }
+
+        function openManageNamesModal() {
+            document.getElementById('manageNamesModal').classList.add('active');
+            renderAllNameLists();
+        }
+
+        function closeManageNamesModal() {
+            document.getElementById('manageNamesModal').classList.remove('active');
+            updateNameFields();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function addNameToList(type) {
+            let inputId, listKey;
+            
+            if (type === 'vets') {
+                inputId = 'newVetName';
+                listKey = 'vets';
+            } else if (type === 'reps') {
+                inputId = 'newRepName';
+                listKey = 'reps';
+            } else if (type === 'rideAlongs') {
+                inputId = 'newRideAlongName';
+                listKey = 'rideAlongs';
+            }
+            
+            const input = document.getElementById(inputId);
+            const name = input.value.trim();
+            
+            if (name && !savedNames[listKey].includes(name)) {
+                savedNames[listKey].push(name);
+                savedNames[listKey].sort();
+                saveSavedNames();
+                renderNameList(listKey);
+                input.value = '';
+            }
+        }
+
+        function deleteNameFromList(type, name) {
+            if (confirm(`Delete "${name}" from the list?`)) {
+                savedNames[type] = savedNames[type].filter(n => n !== name);
+                saveSavedNames();
+                renderNameList(type);
+                updateNameFields();
+            }
+        }
+
+        function renderNameList(type) {
+            let listId;
+            if (type === 'vets') listId = 'vetsList';
+            else if (type === 'reps') listId = 'repsList';
+            else if (type === 'rideAlongs') listId = 'rideAlongsList';
+            
+            const container = document.getElementById(listId);
+            
+            if (savedNames[type].length === 0) {
+                container.innerHTML = '<div class="empty-state">No names saved yet. Add your first name above!</div>';
+                return;
+            }
+            
+            container.innerHTML = savedNames[type].map(name => `
+                <div class="name-item">
+                    <span>${name}</span>
+                    <button class="delete-name-btn" onclick="deleteNameFromList('${type}', '${name}')">✕ Delete</button>
+                </div>
+            `).join('');
+        }
+
+        function renderAllNameLists() {
+            renderNameList('vets');
+            renderNameList('reps');
+            renderNameList('rideAlongs');
+        }
+
+        function addParAddOn() {
+            const container = document.getElementById('parAddOnsList');
+            const title = document.getElementById('parAddOnsTitle');
+            const row = document.createElement('div');
+            row.className = 'par-addon-row';
+            
+            row.innerHTML = `
+                <input type="text" placeholder="Item Name" onchange="updateCalculations()">
+                <input type="number" placeholder="Quantity" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <select onchange="updateCalculations()">
+                    <option value="lf">ln ft</option>
+                    <option value="sf">sq ft</option>
+                </select>
+                <input type="number" placeholder="Rate ($)" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <button onclick="deleteParAddOn(this)" style="padding: 6px 10px; background: #f44336; color: white; border: none; cursor: pointer; font-size: 11px;">✕</button>
+            `;
+            
+            container.appendChild(row);
+            
+            if (container.children.length > 0) {
+                title.style.display = 'block';
+            }
+            
+            updateCalculations();
+        }
+
+        function deleteParAddOn(btn) {
+            const row = btn.closest('.par-addon-row');
+            const container = document.getElementById('parAddOnsList');
+            const title = document.getElementById('parAddOnsTitle');
+            
+            if (row) {
+                row.remove();
+                
+                if (container.children.length === 0) {
+                    title.style.display = 'none';
+                }
+                
+                updateCalculations();
+            }
+        }
+
+        function addParInsulationAddOn() {
+            const container = document.getElementById('parInsulationAddOnsList');
+            const title = document.getElementById('parInsulationAddOnsTitle');
+            const row = document.createElement('div');
+            row.className = 'par-addon-row';
+            
+            row.innerHTML = `
+                <input type="text" placeholder="Item Name" onchange="updateCalculations()">
+                <input type="number" placeholder="Quantity" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <select onchange="updateCalculations()">
+                    <option value="lf">ln ft</option>
+                    <option value="sf">sq ft</option>
+                </select>
+                <input type="number" placeholder="Rate ($)" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <button onclick="deleteParInsulationAddOn(this)" style="padding: 6px 10px; background: #f44336; color: white; border: none; cursor: pointer; font-size: 11px;">✕</button>
+            `;
+            
+            container.appendChild(row);
+            
+            if (container.children.length > 0) {
+                title.style.display = 'block';
+            }
+            
+            updateCalculations();
+        }
+
+        function deleteParInsulationAddOn(btn) {
+            const row = btn.closest('.par-addon-row');
+            const container = document.getElementById('parInsulationAddOnsList');
+            const title = document.getElementById('parInsulationAddOnsTitle');
+            
+            if (row) {
+                row.remove();
+                
+                if (container.children.length === 0) {
+                    title.style.display = 'none';
+                }
+                
+                updateCalculations();
+            }
+        }
+
+        function addParCoatingProduct() {
+            const container = document.getElementById('parCoatingProductsList');
+            const row = document.createElement('div');
+            row.className = 'par-coating-row';
+            
+            row.innerHTML = `
+                <select onchange="handleCoatingProductChange(this)">
+                    <option value="">Select Product</option>
+                    <option value="square_count|675">Square Count - $675/sq</option>
+                    <option value="windows|215">Windows/Reglaze/Paint (Wood/Steel) - $215 ea</option>
+                    <option value="security_door|375">Security Door - $375 ea</option>
+                    <option value="burglar_bars|200">Burglar Bars - $200 ea</option>
+                    <option value="awning_under3|250">Metal Awning Under 3 feet - $250 ea</option>
+                    <option value="awning_over3|325">Metal Awning Over 3 feet - $325 ea</option>
+                    <option value="spanish_lace|245">Spanish Lace - $245/sq</option>
+                    <option value="wood_replacement|17">Wood Replacement (eave/fascia) - $17/ln ft</option>
+                    <option value="wood_repairs|750">Wood Repairs (siding) - $750/sq</option>
+                    <option value="wood_siding|350">Wood Siding/Eave strip bare wood - $350/sq</option>
+                    <option value="one_float|200">One Float - $200/sq</option>
+                    <option value="two_float|450">Two Float - $450/sq</option>
+                    <option value="lath_paper|1250">Lath paper three float - $1,250/sq</option>
+                    <option value="structural_crack|225">Structural crack - $225 ea</option>
+                    <option value="remove_patio|250">Remove & haul away patio overhang - $250</option>
+                    <option value="door|250">Door - $250 ea</option>
+                    <option value="custom|0">ADDITIONAL CHARGE (Custom)</option>
+                </select>
+                <input type="number" class="qty-input" placeholder="Qty" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <input type="text" class="rate-display" readonly placeholder="Rate" style="background: #f0f0f0;">
+                <div class="calc-display">$0.00</div>
+                <button onclick="deleteCoatingProduct(this)" style="padding: 6px 10px; background: #f44336; color: white; border: none; cursor: pointer; font-size: 11px;">✕</button>
+            `;
+            
+            const customContainer = document.createElement('div');
+            customContainer.className = 'custom-fields';
+            customContainer.innerHTML = `
+                <input type="text" placeholder="Custom Product Name" onchange="updateCalculations()">
+                <input type="number" placeholder="Quantity" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <input type="number" placeholder="Rate ($)" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">
+                <div class="calc-display">$0.00</div>
+                <button onclick="deleteCoatingProduct(this)" style="padding: 6px 10px; background: #f44336; color: white; border: none; cursor: pointer; font-size: 11px;">✕</button>
+            `;
+            
+            container.appendChild(row);
+            container.appendChild(customContainer);
+            
+            updateCalculations();
+        }
+
+        function deleteCoatingProduct(btn) {
+            const row = btn.closest('.par-coating-row') || btn.closest('.custom-fields');
+            if (row) {
+                if (row.classList.contains('par-coating-row')) {
+                    const customFields = row.nextElementSibling;
+                    if (customFields && customFields.classList.contains('custom-fields')) {
+                        customFields.remove();
+                    }
+                } else if (row.classList.contains('custom-fields')) {
+                    const regularRow = row.previousElementSibling;
+                    if (regularRow && regularRow.classList.contains('par-coating-row')) {
+                        regularRow.remove();
+                    }
+                }
+                row.remove();
+                updateCalculations();
+            }
+        }
+
+        function handleCoatingProductChange(selectElement) {
+            const row = selectElement.closest('.par-coating-row');
+            const customFields = row.nextElementSibling;
+            const value = selectElement.value;
+            
+            if (value === 'custom|0') {
+                customFields.classList.add('active');
+                row.style.display = 'none';
+            } else if (value) {
+                customFields.classList.remove('active');
+                row.style.display = 'grid';
+                
+                const [productKey, rate] = value.split('|');
+                const rateDisplay = row.querySelector('.rate-display');
+                rateDisplay.value = '$' + parseFloat(rate).toFixed(2);
+            } else {
+                customFields.classList.remove('active');
+                row.style.display = 'grid';
+                const rateDisplay = row.querySelector('.rate-display');
+                rateDisplay.value = '';
+            }
+            
+            updateCalculations();
+        }
+
+        function togglePAR(parType) {
+            // Toggle the PAR type in the Set
+            if (activePARs.has(parType)) {
+                activePARs.delete(parType);
+            } else {
+                activePARs.add(parType);
+            }
+            
+            // Update UI based on active PARs
+            if (activePARs.has('gutters')) {
+                document.getElementById('parGuttersBtn').classList.add('active');
+                document.getElementById('parGuttersFields').classList.add('active');
+            } else {
+                document.getElementById('parGuttersBtn').classList.remove('active');
+                document.getElementById('parGuttersFields').classList.remove('active');
+            }
+            
+            if (activePARs.has('insulation')) {
+                document.getElementById('parInsulationBtn').classList.add('active');
+                document.getElementById('parInsulationFields').classList.add('active');
+            } else {
+                document.getElementById('parInsulationBtn').classList.remove('active');
+                document.getElementById('parInsulationFields').classList.remove('active');
+            }
+            
+            if (activePARs.has('coating')) {
+                document.getElementById('parCoatingBtn').classList.add('active');
+                document.getElementById('parCoatingFields').classList.add('active');
+            } else {
+                document.getElementById('parCoatingBtn').classList.remove('active');
+                document.getElementById('parCoatingFields').classList.remove('active');
+            }
+            
+            updateCalculations();
+        }
+
+        function initializeTable() {
+            for (let i = 0; i < 5; i++) {
+                addInvoiceRow();
+            }
+            updateCalculations();
+        }
+
+        function addInvoiceRow() {
+            const tbody = document.getElementById('invoiceTableBody');
+            const row = tbody.insertRow();
+            
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+            const cell3 = row.insertCell(2);
+
+            cell1.innerHTML = '<input type="text" class="table-input" placeholder="Item" onchange="saveData()">';
+            cell2.innerHTML = '<input type="number" class="table-input" step="0.01" inputmode="decimal" onchange="updateCalculations()" style="padding-left: 20px;">';
+            cell3.innerHTML = '<input type="checkbox" onchange="saveData()">';
+
+            saveData();
+        }
+
+        function updateNameFields() {
+            const numVets = parseInt(document.getElementById('numVets').value) || 0;
+            const numReps = parseInt(document.getElementById('numReps').value) || 0;
+            const numRideAlongs = parseInt(document.getElementById('numRideAlongs').value) || 0;
+
+            const finalPerVet = document.getElementById('finalPerVet').textContent;
+            const finalPerRep = document.getElementById('finalPerRep').textContent;
+            const perRideAlong = document.getElementById('perRideAlong').textContent;
+
+            const vetList = document.getElementById('vetNamesList');
+            const currentVetValues = Array.from(vetList.querySelectorAll('.name-select, .name-input')).map(el => {
+                if (el.classList.contains('name-select')) {
+                    return el.value === 'custom' ? el.nextElementSibling.value : el.value;
+                }
+                return el.value;
+            });
+            vetList.innerHTML = '';
+            
+            if (numVets > 0) {
+                const vetLabel = document.createElement('div');
+                vetLabel.className = 'payout-label';
+                vetLabel.textContent = 'VETS';
+                vetList.appendChild(vetLabel);
+            }
+            
+            for (let i = 0; i < numVets; i++) {
+                const row = document.createElement('div');
+                row.className = 'name-row';
+                
+                const select = document.createElement('select');
+                select.className = 'name-select';
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select Vet...';
+                select.appendChild(defaultOption);
+                
+                savedNames.vets.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    if (currentVetValues[i] === name) option.selected = true;
+                    select.appendChild(option);
+                });
+                
+                const customOption = document.createElement('option');
+                customOption.value = 'custom';
+                customOption.textContent = '➕ Custom Name...';
+                select.appendChild(customOption);
+                
+                if (currentVetValues[i] && !savedNames.vets.includes(currentVetValues[i])) {
+                    select.value = 'custom';
+                }
+                
+                select.onchange = function() {
+                    handleNameSelectChange(this, currentVetValues[i]);
+                    saveData();
+                };
+                
+                const customInput = document.createElement('input');
+                customInput.type = 'text';
+                customInput.className = 'name-input';
+                customInput.placeholder = 'Enter custom name...';
+                customInput.style.display = 'none';
+                if (currentVetValues[i] && !savedNames.vets.includes(currentVetValues[i])) {
+                    customInput.style.display = 'block';
+                    customInput.value = currentVetValues[i];
+                    select.style.display = 'none';
+                }
+                customInput.onchange = saveData;
+                
+                const amount = document.createElement('div');
+                amount.className = 'name-amount';
+                amount.textContent = finalPerVet;
+                
+                const initialBoxes = document.createElement('div');
+                initialBoxes.className = 'initial-boxes';
+                
+                const personBox = document.createElement('div');
+                personBox.className = 'initial-box';
+                const personSquare = document.createElement('div');
+                personSquare.className = 'initial-box-square';
+                const personLabel = document.createElement('div');
+                personLabel.className = 'initial-box-label';
+                personLabel.textContent = 'INITIAL';
+                personBox.appendChild(personSquare);
+                personBox.appendChild(personLabel);
+                
+                const approvalBox = document.createElement('div');
+                approvalBox.className = 'initial-box';
+                const approvalSquare = document.createElement('div');
+                approvalSquare.className = 'initial-box-square';
+                const approvalLabel = document.createElement('div');
+                approvalLabel.className = 'initial-box-label';
+                approvalLabel.textContent = 'RYAN A/ JUAN E APPROVED';
+                approvalBox.appendChild(approvalSquare);
+                approvalBox.appendChild(approvalLabel);
+                
+                initialBoxes.appendChild(personBox);
+                initialBoxes.appendChild(approvalBox);
+                
+                row.appendChild(select);
+                row.appendChild(customInput);
+                row.appendChild(amount);
+                row.appendChild(initialBoxes);
+                vetList.appendChild(row);
+            }
+
+            const repList = document.getElementById('repNamesList');
+            const currentRepValues = Array.from(repList.querySelectorAll('.name-select, .name-input')).map(el => {
+                if (el.classList.contains('name-select')) {
+                    return el.value === 'custom' ? el.nextElementSibling.value : el.value;
+                }
+                return el.value;
+            });
+            repList.innerHTML = '';
+            
+            if (numReps > 0) {
+                const repLabel = document.createElement('div');
+                repLabel.className = 'payout-label';
+                repLabel.textContent = 'REPS';
+                repList.appendChild(repLabel);
+            }
+            
+            for (let i = 0; i < numReps; i++) {
+                const row = document.createElement('div');
+                row.className = 'name-row';
+                
+                const select = document.createElement('select');
+                select.className = 'name-select';
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select Rep...';
+                select.appendChild(defaultOption);
+                
+                savedNames.reps.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    if (currentRepValues[i] === name) option.selected = true;
+                    select.appendChild(option);
+                });
+                
+                const customOption = document.createElement('option');
+                customOption.value = 'custom';
+                customOption.textContent = '➕ Custom Name...';
+                select.appendChild(customOption);
+                
+                if (currentRepValues[i] && !savedNames.reps.includes(currentRepValues[i])) {
+                    select.value = 'custom';
+                }
+                
+                select.onchange = function() {
+                    handleNameSelectChange(this, currentRepValues[i]);
+                    saveData();
+                };
+                
+                const customInput = document.createElement('input');
+                customInput.type = 'text';
+                customInput.className = 'name-input';
+                customInput.placeholder = 'Enter custom name...';
+                customInput.style.display = 'none';
+                if (currentRepValues[i] && !savedNames.reps.includes(currentRepValues[i])) {
+                    customInput.style.display = 'block';
+                    customInput.value = currentRepValues[i];
+                    select.style.display = 'none';
+                }
+                customInput.onchange = saveData;
+                
+                const amount = document.createElement('div');
+                amount.className = 'name-amount';
+                amount.textContent = finalPerRep;
+                
+                const initialBoxes = document.createElement('div');
+                initialBoxes.className = 'initial-boxes';
+                
+                const personBox = document.createElement('div');
+                personBox.className = 'initial-box';
+                const personSquare = document.createElement('div');
+                personSquare.className = 'initial-box-square';
+                const personLabel = document.createElement('div');
+                personLabel.className = 'initial-box-label';
+                personLabel.textContent = 'INITIAL';
+                personBox.appendChild(personSquare);
+                personBox.appendChild(personLabel);
+                
+                const approvalBox = document.createElement('div');
+                approvalBox.className = 'initial-box';
+                const approvalSquare = document.createElement('div');
+                approvalSquare.className = 'initial-box-square';
+                const approvalLabel = document.createElement('div');
+                approvalLabel.className = 'initial-box-label';
+                approvalLabel.textContent = 'RYAN A/ JUAN E APPROVED';
+                approvalBox.appendChild(approvalSquare);
+                approvalBox.appendChild(approvalLabel);
+                
+                initialBoxes.appendChild(personBox);
+                initialBoxes.appendChild(approvalBox);
+                
+                row.appendChild(select);
+                row.appendChild(customInput);
+                row.appendChild(amount);
+                row.appendChild(initialBoxes);
+                repList.appendChild(row);
+            }
+
+            const raList = document.getElementById('rideAlongNamesList');
+            const currentRAValues = Array.from(raList.querySelectorAll('.name-select, .name-input')).map(el => {
+                if (el.classList.contains('name-select')) {
+                    return el.value === 'custom' ? el.nextElementSibling.value : el.value;
+                }
+                return el.value;
+            });
+            raList.innerHTML = '';
+            
+            if (numRideAlongs > 0) {
+                const raLabel = document.createElement('div');
+                raLabel.className = 'payout-label';
+                raLabel.textContent = 'R/A';
+                raList.appendChild(raLabel);
+            }
+            
+            for (let i = 0; i < numRideAlongs; i++) {
+                const row = document.createElement('div');
+                row.className = 'name-row';
+                
+                const select = document.createElement('select');
+                select.className = 'name-select';
+                
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Select Ride Along...';
+                select.appendChild(defaultOption);
+                
+                savedNames.rideAlongs.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    if (currentRAValues[i] === name) option.selected = true;
+                    select.appendChild(option);
+                });
+                
+                const customOption = document.createElement('option');
+                customOption.value = 'custom';
+                customOption.textContent = '➕ Custom Name...';
+                select.appendChild(customOption);
+                
+                if (currentRAValues[i] && !savedNames.rideAlongs.includes(currentRAValues[i])) {
+                    select.value = 'custom';
+                }
+                
+                select.onchange = function() {
+                    handleNameSelectChange(this, currentRAValues[i]);
+                    saveData();
+                };
+                
+                const customInput = document.createElement('input');
+                customInput.type = 'text';
+                customInput.className = 'name-input';
+                customInput.placeholder = 'Enter custom name...';
+                customInput.style.display = 'none';
+                if (currentRAValues[i] && !savedNames.rideAlongs.includes(currentRAValues[i])) {
+                    customInput.style.display = 'block';
+                    customInput.value = currentRAValues[i];
+                    select.style.display = 'none';
+                }
+                customInput.onchange = saveData;
+                
+                const amount = document.createElement('div');
+                amount.className = 'name-amount';
+                amount.textContent = perRideAlong;
+                
+                const initialBoxes = document.createElement('div');
+                initialBoxes.className = 'initial-boxes';
+                
+                const personBox = document.createElement('div');
+                personBox.className = 'initial-box';
+                const personSquare = document.createElement('div');
+                personSquare.className = 'initial-box-square';
+                const personLabel = document.createElement('div');
+                personLabel.className = 'initial-box-label';
+                personLabel.textContent = 'INITIAL';
+                personBox.appendChild(personSquare);
+                personBox.appendChild(personLabel);
+                
+                const approvalBox = document.createElement('div');
+                approvalBox.className = 'initial-box';
+                const approvalSquare = document.createElement('div');
+                approvalSquare.className = 'initial-box-square';
+                const approvalLabel = document.createElement('div');
+                approvalLabel.className = 'initial-box-label';
+                approvalLabel.textContent = 'RYAN A/ JUAN E APPROVED';
+                approvalBox.appendChild(approvalSquare);
+                approvalBox.appendChild(approvalLabel);
+                
+                initialBoxes.appendChild(personBox);
+                initialBoxes.appendChild(approvalBox);
+                
+                row.appendChild(select);
+                row.appendChild(customInput);
+                row.appendChild(amount);
+                row.appendChild(initialBoxes);
+                raList.appendChild(row);
+            }
+        }
+
+        function handleNameSelectChange(selectElement, previousValue) {
+            const customInput = selectElement.nextElementSibling;
+            
+            if (selectElement.value === 'custom') {
+                selectElement.style.display = 'none';
+                customInput.style.display = 'block';
+                customInput.value = previousValue && !Object.values(savedNames).flat().includes(previousValue) ? previousValue : '';
+                customInput.focus();
+            } else {
+                selectElement.style.display = 'block';
+                customInput.style.display = 'none';
+            }
+        }
+
+        function parseValue(value) {
+            if (value === null || value === undefined || value === '') return 0;
+            const parsed = parseFloat(value.toString().replace(/[,$]/g, ''));
+            return isNaN(parsed) ? 0 : parsed;
+        }
+
+        function formatCurrency(value) {
+            if (isNaN(value)) return '$0.00';
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: 'USD',
+                minimumFractionDigits: 2
+            }).format(value);
+        }
+
+        function updateCalculations() {
+            const contractAmount = parseValue(document.getElementById('contractAmount').value);
+            const netAmount = parseValue(document.getElementById('netAmount').value);
+            const rideAlongFee = parseValue(document.getElementById('rideAlongFee').value);
+            const rideAlongBonus = parseValue(document.getElementById('rideAlongBonus').value);
+            const numVets = parseValue(document.getElementById('numVets').value);
+            const numReps = parseValue(document.getElementById('numReps').value);
+            const numRideAlongs = parseValue(document.getElementById('numRideAlongs').value);
+
+            let houseFeePercent = 0;
+            if (contractAmount <= 20000) houseFeePercent = 10;
+            else if (contractAmount <= 30000) houseFeePercent = 9;
+            else houseFeePercent = 8;
+            
+            document.getElementById('houseFeePercent').textContent = houseFeePercent + '%';
+
+            const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
+            let totalLaborMaterial = 0;
+            for (let row of rows) {
+                const costCell = row.cells[1];
+                const costInput = costCell.querySelector('input[type="number"]');
+                totalLaborMaterial += parseValue(costInput ? costInput.value : '');
+            }
+            
+            document.getElementById('totalJobCost').textContent = formatCurrency(totalLaborMaterial);
+            
+            const houseFeeAmount = (contractAmount * houseFeePercent) / 100;
+
+            const afterHouseFee = contractAmount - houseFeeAmount;
+            const netAmountDiff = contractAmount - netAmount;
+
+            const totalAfterFees = afterHouseFee - netAmountDiff - totalLaborMaterial;
+            document.getElementById('totalAfterFees').textContent = formatCurrency(totalAfterFees);
+
+            const profitPercent = contractAmount > 0 ? (totalAfterFees / contractAmount) * 100 : 0;
+
+            let vetRate = 25;
+            if (profitPercent >= 50) vetRate = 55;
+            else if (profitPercent >= 40) vetRate = 45;
+            else if (profitPercent >= 33) vetRate = 35;
+
+            let repRate = 20;
+            if (profitPercent >= 50) repRate = 40;
+            else if (profitPercent >= 40) repRate = 30;
+            else if (profitPercent >= 33) repRate = 25;
+
+            document.getElementById('vetRate').textContent = vetRate + '%';
+            document.getElementById('repRate').textContent = repRate + '%';
+
+            if (numVets > 0) {
+                document.getElementById('vetRateBox').style.display = 'block';
+                document.getElementById('vetPayoutBox').style.display = 'block';
+            } else {
+                document.getElementById('vetRateBox').style.display = 'none';
+                document.getElementById('vetPayoutBox').style.display = 'none';
+            }
+
+            if (numReps > 0) {
+                document.getElementById('repRateBox').style.display = 'block';
+            } else {
+                document.getElementById('repRateBox').style.display = 'none';
+            }
+
+            const totalSalesmen = numVets + numReps;
+            
+            const totalPeople = numVets + numReps;
+            const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+            
+            document.getElementById('rideAlongFeePerPerson').textContent = formatCurrency(rideAlongFeePerPerson);
+            
+            const totalVetCommission = (totalAfterFees * vetRate) / 100;
+            const perVetBeforeFees = totalSalesmen > 0 ? totalVetCommission / totalSalesmen : 0;
+            const finalPerVet = perVetBeforeFees - rideAlongFeePerPerson;
+
+            let finalPerRep = 0;
+            
+            // ALWAYS calculate and display PAR amounts (even when buttons aren't active)
+            // This lets users see totals as they fill in quantities
+            
+            // Calculate Gutters PAR display
+            const guttersLF_display = parseValue(document.getElementById('guttersLF').value);
+            const woodLF_display = parseValue(document.getElementById('woodLF').value);
+            const guttersTotal_display = guttersLF_display * 27;
+            const woodTotal_display = woodLF_display * 17;
+            let guttersAddOns_display = 0;
+            const guttersRows_display = document.getElementById('parAddOnsList').getElementsByClassName('par-addon-row');
+            for (let row of guttersRows_display) {
+                const inputs = row.getElementsByTagName('input');
+                guttersAddOns_display += parseValue(inputs[1].value) * parseValue(inputs[2].value);
+            }
+            document.getElementById('parGuttersAmount').textContent = formatCurrency(guttersTotal_display + woodTotal_display + guttersAddOns_display);
+            
+            // Calculate Insulation PAR display
+            const insulationSF_display = parseValue(document.getElementById('insulationSF').value);
+            const insulationWoodLF_display = parseValue(document.getElementById('insulationWoodLF').value);
+            const insulationTotal_display = insulationSF_display * 4;
+            const insulationWood_display = insulationWoodLF_display * 17;
+            let insulationAddOns_display = 0;
+            const insulationRows_display = document.getElementById('parInsulationAddOnsList').getElementsByClassName('par-addon-row');
+            for (let row of insulationRows_display) {
+                const inputs = row.getElementsByTagName('input');
+                insulationAddOns_display += parseValue(inputs[1].value) * parseValue(inputs[2].value);
+            }
+            document.getElementById('parInsulationAmount').textContent = formatCurrency(insulationTotal_display + insulationWood_display + insulationAddOns_display);
+            
+            // Calculate Coating PAR display
+            let coatingTotal_display = 0;
+            const coatingRows_display = document.getElementById('parCoatingProductsList').querySelectorAll('.par-coating-row');
+            coatingRows_display.forEach((row) => {
+                const select = row.querySelector('select');
+                const qtyInput = row.querySelector('.qty-input');
+                const calcDisplay = row.querySelector('.calc-display');
+                const customFields = row.nextElementSibling;
+                
+                if (select.value === 'custom|0' && customFields && customFields.classList.contains('active')) {
+                    const inputs = customFields.querySelectorAll('input');
+                    const customTotal = parseValue(inputs[1].value) * parseValue(inputs[2].value);
+                    coatingTotal_display += customTotal;
+                    customFields.querySelector('.calc-display').textContent = formatCurrency(customTotal);
+                } else if (select.value) {
+                    const [productKey, rate] = select.value.split('|');
+                    const total = parseValue(qtyInput.value) * parseFloat(rate);
+                    coatingTotal_display += total;
+                    calcDisplay.textContent = formatCurrency(total);
+                } else {
+                    calcDisplay.textContent = '$0.00';
+                }
+            });
+            document.getElementById('parCoatingAmount').textContent = formatCurrency(coatingTotal_display);
+            
+            // Check if any PAR types are active FOR PAYOUT CALCULATIONS
+            const usingPAR = activePARs.size > 0 && numReps > 0;
+            
+            if (usingPAR) {
+                // Build parCalculations from active PARs only
+                let parCalculations = [];
+                
+                // Calculate Gutters PAR if active (reuse display calculations)
+                if (activePARs.has('gutters')) {
+                    parCalculations.push({
+                        type: 'gutters',
+                        parAmount: guttersTotal_display + woodTotal_display + guttersAddOns_display,
+                        guttersLF: guttersLF_display,
+                        woodLF: woodLF_display,
+                        addOnsTotal: guttersAddOns_display
+                    });
+                }
+                
+                // Calculate Insulation PAR if active (reuse display calculations)
+                if (activePARs.has('insulation')) {
+                    parCalculations.push({
+                        type: 'insulation',
+                        parAmount: insulationTotal_display + insulationWood_display + insulationAddOns_display,
+                        insulationSF: insulationSF_display,
+                        woodLF: insulationWoodLF_display,
+                        addOnsTotal: insulationAddOns_display
+                    });
+                }
+                
+                // Calculate Coating PAR if active (reuse display calculations)
+                if (activePARs.has('coating')) {
+                    parCalculations.push({
+                        type: 'coating',
+                        parAmount: coatingTotal_display
+                    });
+                }
+                
+                // Now calculate combined PAR payout
+                const numActivePARs = parCalculations.length;
+                const allocatedNetPerPAR = numActivePARs > 0 ? netAmount / numActivePARs : 0;
+                
+                let totalPARGross = 0;
+                
+                // Calculate payout for each PAR
+                parCalculations.forEach(par => {
+                    let parGross = 0;
+                    
+                    if (allocatedNetPerPAR >= par.parAmount) {
+                        const basePay = par.parAmount * 0.10;
+                        const overage = allocatedNetPerPAR - par.parAmount;
+                        const overagePay = overage * 0.50;
+                        parGross = basePay + overagePay;
+                    }
+                    
+                    par.allocatedNet = allocatedNetPerPAR;
+                    par.payout = parGross;
+                    totalPARGross += parGross;
+                });
+                
+                // Store for breakdown generation
+                window.currentPARCalculations = parCalculations;
+                
+                const parPerPerson = totalSalesmen > 0 ? totalPARGross / totalSalesmen : 0;
+                finalPerRep = parPerPerson - rideAlongFeePerPerson;
+                
+                document.getElementById('repRateBox').style.display = 'none';
+                
+            } else {
+                // Standard profit share calculation
+                window.currentPARCalculations = null;
+                
+                const totalRepCommission = (totalAfterFees * repRate) / 100;
+                const perRepBeforeFees = totalSalesmen > 0 ? totalRepCommission / totalSalesmen : 0;
+                
+                finalPerRep = perRepBeforeFees - rideAlongFeePerPerson;
+                
+                if (numReps > 0) {
+                    document.getElementById('repRateBox').style.display = 'block';
+                }
+            }
+
+            document.getElementById('finalPerVet').textContent = formatCurrency(finalPerVet);
+            document.getElementById('finalPerRep').textContent = formatCurrency(finalPerRep);
+
+            const totalRideAlongPayout = rideAlongFee + rideAlongBonus;
+            const perRideAlong = numRideAlongs > 0 ? totalRideAlongPayout / numRideAlongs : 0;
+
+            document.getElementById('totalRideAlongPayout').textContent = formatCurrency(totalRideAlongPayout);
+            document.getElementById('perRideAlong').textContent = formatCurrency(perRideAlong);
+
+            updateNameFields();
+            generateBreakdown();
+            saveData();
+        }
+
+        function generateBreakdown() {
+            const breakdownContent = document.getElementById('breakdownContent');
+            const contractAmount = parseValue(document.getElementById('contractAmount').value);
+            const netAmount = parseValue(document.getElementById('netAmount').value);
+            const numVets = parseValue(document.getElementById('numVets').value);
+            const numReps = parseValue(document.getElementById('numReps').value);
+            const rideAlongFee = parseValue(document.getElementById('rideAlongFee').value);
+            const customerName = document.getElementById('customerName').value || 'N/A';
+            const jobNumber = document.getElementById('jobNumber').value || 'N/A';
+            
+            const vetList = document.getElementById('vetNamesList');
+            const vetElements = vetList ? vetList.querySelectorAll('input, select') : [];
+            const vetNames = [];
+            vetElements.forEach(el => {
+                const val = el.value.trim();
+                if (val && val !== 'custom' && val.length > 0) {
+                    vetNames.push(val);
+                }
+            });
+            
+            const repList = document.getElementById('repNamesList');
+            const repElements = repList ? repList.querySelectorAll('input, select') : [];
+            const repNames = [];
+            repElements.forEach(el => {
+                const val = el.value.trim();
+                if (val && val !== 'custom' && val.length > 0) {
+                    repNames.push(val);
+                }
+            });
+            
+            const rideAlongList = document.getElementById('rideAlongNamesList');
+            const rideAlongElements = rideAlongList ? rideAlongList.querySelectorAll('input, select') : [];
+            const rideAlongNames = [];
+            rideAlongElements.forEach(el => {
+                const val = el.value.trim();
+                if (val && val !== 'custom' && val.length > 0) {
+                    rideAlongNames.push(val);
+                }
+            });
+            
+            let html = '';
+            
+            html += '<div class="breakdown-section">';
+            html += '<div class="breakdown-section-title">JOB INFORMATION</div>';
+            html += `<div class="breakdown-line"><span>Customer Name:</span><span>${customerName}</span></div>`;
+            html += `<div class="breakdown-line"><span>Job Number:</span><span>${jobNumber}</span></div>`;
+            html += '</div>';
+            
+            const usingPAR = activePARs.size > 0 && numReps > 0;
+            
+            if (!usingPAR && numVets > 0) {
+                const totalFees = contractAmount - netAmount;
+                const houseFeePercent = contractAmount <= 20000 ? 10 : contractAmount <= 30000 ? 9 : 8;
+                const houseFeeAmount = (contractAmount * houseFeePercent) / 100;
+                
+                const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
+                let totalLaborMaterial = 0;
+                for (let row of rows) {
+                    const costCell = row.cells[1];
+                    const costInput = costCell.querySelector('input[type="number"]');
+                    totalLaborMaterial += parseValue(costInput ? costInput.value : '');
+                }
+                
+                const afterHouseFee = contractAmount - houseFeeAmount;
+                const netAmountDiff = contractAmount - netAmount;
+                const afterFeesFromContract = afterHouseFee - netAmountDiff;
+                const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
+                const profitPercent = contractAmount > 0 ? (totalAfterFees / contractAmount) * 100 : 0;
+                
+                let vetRate = 25;
+                if (profitPercent >= 50) vetRate = 55;
+                else if (profitPercent >= 40) vetRate = 45;
+                else if (profitPercent >= 33) vetRate = 35;
+                
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">CONTRACT & FEES</div>';
+                html += `<div class="breakdown-line"><span>Contract Amount:</span><span>${formatCurrency(contractAmount)}</span></div>`;
+                html += `<div class="breakdown-line"><span>- House Fee (${houseFeePercent}%):</span><span>-${formatCurrency(houseFeeAmount)}</span></div>`;
+                html += `<div class="breakdown-line"><span>= After House Fee:</span><span>${formatCurrency(afterHouseFee)}</span></div>`;
+                html += `<div class="breakdown-line"><span>- Fees (Contract - Net):</span><span>-${formatCurrency(netAmountDiff)}</span></div>`;
+                html += `<div class="breakdown-line"><span>= After Fees from Contract:</span><span>${formatCurrency(afterFeesFromContract)}</span></div>`;
+                html += `<div class="breakdown-line"><span>- Job Cost (Labor & Materials):</span><span>-${formatCurrency(totalLaborMaterial)}</span></div>`;
+                html += `<div class="breakdown-line total"><span>= After All Fees (Profit Pool):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
+                html += '</div>';
+                
+                if (numVets > 0) {
+                    
+                    const totalSalesmen = numVets + numReps;
+                    const totalVetCommission = (totalAfterFees * vetRate) / 100;
+                    const perVetBeforeFees = totalSalesmen > 0 ? totalVetCommission / totalSalesmen : 0;
+                    const totalPeople = numVets + numReps;
+                    const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+                    const finalPerVet = perVetBeforeFees - rideAlongFeePerPerson;
+                    
+                    html += '<div class="breakdown-section">';
+                    html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE)</div>';
+                    
+                    html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit):</span><span>${vetRate}%</span></div>`;
+                    html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
+                    html += `<div class="breakdown-line total"><span>Final Per Vet:</span><span>${formatCurrency(finalPerVet)}</span></div>`;
+                    
+                    html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                    html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">VET PAYOUTS:</div>';
+                    if (vetNames.length > 0) {
+                        vetNames.forEach(name => {
+                            html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerVet)}</span></div>`;
+                        });
+                    } else {
+                        html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No vet names entered</span><span></span></div>';
+                    }
+                    html += '</div>';
+                    
+                    html += '</div>';
+                }
+                
+                if (numReps > 0 && !usingPAR) {
+                    let repRate = 20;
+                    if (profitPercent >= 50) repRate = 40;
+                    else if (profitPercent >= 40) repRate = 30;
+                    else if (profitPercent >= 33) repRate = 25;
+                    
+                    const totalSalesmen = numVets + numReps;
+                    const totalRepCommission = (totalAfterFees * repRate) / 100;
+                    const perRepBeforeFees = totalSalesmen > 0 ? totalRepCommission / totalSalesmen : 0;
+                    const totalPeople = numVets + numReps;
+                    const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+                    const finalPerRep = perRepBeforeFees - rideAlongFeePerPerson;
+                    
+                    html += '<div class="breakdown-section">';
+                    html += '<div class="breakdown-section-title">REP PAYOUT (PROFIT SHARE)</div>';
+                    
+                    html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>Rep Rate (based on ${profitPercent.toFixed(2)}% profit):</span><span>${repRate}%</span></div>`;
+                    html += `<div class="breakdown-line"><span>Total Rep Commission:</span><span>${formatCurrency(totalRepCommission)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perRepBeforeFees)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
+                    html += `<div class="breakdown-line total"><span>Final Per Rep:</span><span>${formatCurrency(finalPerRep)}</span></div>`;
+                    
+                    html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                    html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">REP PAYOUTS:</div>';
+                    if (repNames.length > 0) {
+                        repNames.forEach(name => {
+                            html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerRep)}</span></div>`;
+                        });
+                    } else {
+                        html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No rep names entered</span><span></span></div>';
+                    }
+                    html += '</div>';
+                    
+                    html += '</div>';
+                }
+            }
+            
+            // Use PAR calculation from above (already declared usingPAR)
+            if (usingPAR && window.currentPARCalculations) {
+                const totalFees = contractAmount - netAmount;
+                
+                // If there are vets, show their profit share payout FIRST (vets don't use PAR)
+                if (numVets > 0) {
+                    const houseFeePercent = contractAmount <= 20000 ? 10 : contractAmount <= 30000 ? 9 : 8;
+                    const houseFeeAmount = (contractAmount * houseFeePercent) / 100;
+                    
+                    const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
+                    let totalLaborMaterial = 0;
+                    for (let row of rows) {
+                        const costCell = row.cells[1];
+                        const costInput = costCell.querySelector('input[type="number"]');
+                        totalLaborMaterial += parseValue(costInput ? costInput.value : '');
+                    }
+                    
+                    const afterHouseFee = contractAmount - houseFeeAmount;
+                    const netAmountDiff = contractAmount - netAmount;
+                    const afterFeesFromContract = afterHouseFee - netAmountDiff;
+                    const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
+                    const profitPercent = contractAmount > 0 ? (totalAfterFees / contractAmount) * 100 : 0;
+                    
+                    let vetRate = 25;
+                    if (profitPercent >= 50) vetRate = 55;
+                    else if (profitPercent >= 40) vetRate = 45;
+                    else if (profitPercent >= 33) vetRate = 35;
+                    
+                    const totalSalesmen = numVets + numReps;
+                    const totalVetCommission = (totalAfterFees * vetRate) / 100;
+                    const perVetBeforeFees = totalSalesmen > 0 ? totalVetCommission / totalSalesmen : 0;
+                    const totalPeople = numVets + numReps;
+                    const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+                    const finalPerVet = perVetBeforeFees - rideAlongFeePerPerson;
+                    
+                    html += '<div class="breakdown-section">';
+                    html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE - NOT PAR)</div>';
+                    html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit):</span><span>${vetRate}%</span></div>`;
+                    html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
+                    html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
+                    html += `<div class="breakdown-line total"><span>Final Per Vet:</span><span>${formatCurrency(finalPerVet)}</span></div>`;
+                    
+                    html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                    html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">VET PAYOUTS:</div>';
+                    if (vetNames.length > 0) {
+                        vetNames.forEach(name => {
+                            html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerVet)}</span></div>`;
+                        });
+                    } else {
+                        html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No vet names entered</span><span></span></div>';
+                    }
+                    html += '</div>';
+                    html += '</div>';
+                }
+                
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">CONTRACT INFORMATION</div>';
+                html += `<div class="breakdown-line"><span>Contract Amount:</span><span>${formatCurrency(contractAmount)}</span></div>`;
+                html += `<div class="breakdown-line"><span>Net Amount:</span><span>${formatCurrency(netAmount)}</span></div>`;
+                html += `<div class="breakdown-line total"><span>Total Fees (Contract - Net):</span><span>${formatCurrency(totalFees)}</span></div>`;
+                html += '</div>';
+                
+                const parCalcs = window.currentPARCalculations;
+                const numActivePARs = parCalcs.length;
+                const allocatedNetPerPAR = netAmount / numActivePARs;
+                
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">REP PAYOUT (MULTIPLE PAR JOBS)</div>';
+                
+                if (repNames.length > 0) {
+                    html += '<div class="breakdown-line" style="font-weight: bold; margin-bottom: 8px;"><span>Reps:</span><span>' + repNames.join(', ') + '</span></div>';
+                }
+                
+                html += `<div class="breakdown-line" style="font-weight: bold; background: #fff3e0; padding: 8px; margin: 8px 0;"><span>Net Amount Divided by ${numActivePARs} PAR Job${numActivePARs > 1 ? 's' : ''}:</span><span>${formatCurrency(allocatedNetPerPAR)}</span></div>`;
+                
+                let totalCombinedPayout = 0;
+                
+                // Show each PAR calculation
+                parCalcs.forEach((par, index) => {
+                    html += `<div style="margin: 15px 0; padding: 12px; background: #f9f9f9; border: 2px solid #FF9800;">`;
+                    
+                    if (par.type === 'gutters') {
+                        html += '<div style="font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #FF9800;">PAR GUTTERS JOB</div>';
+                        html += `<div class="breakdown-line"><span>Gutters (${par.guttersLF} lf × $27):</span><span>${formatCurrency(par.guttersLF * 27)}</span></div>`;
+                        html += `<div class="breakdown-line"><span>Wood (${par.woodLF} lf × $17):</span><span>${formatCurrency(par.woodLF * 17)}</span></div>`;
+                        if (par.addOnsTotal > 0) {
+                            html += `<div class="breakdown-line"><span>Add-ons:</span><span>${formatCurrency(par.addOnsTotal)}</span></div>`;
+                        }
+                        html += `<div class="breakdown-line" style="font-weight: bold;"><span>Total PAR:</span><span>${formatCurrency(par.parAmount)}</span></div>`;
+                    } else if (par.type === 'insulation') {
+                        html += '<div style="font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #FF9800;">PAR INSULATION JOB</div>';
+                        html += `<div class="breakdown-line"><span>Insulation (${par.insulationSF} sf × $4):</span><span>${formatCurrency(par.insulationSF * 4)}</span></div>`;
+                        html += `<div class="breakdown-line"><span>Wood (${par.woodLF} lf × $17):</span><span>${formatCurrency(par.woodLF * 17)}</span></div>`;
+                        if (par.addOnsTotal > 0) {
+                            html += `<div class="breakdown-line"><span>Add-ons:</span><span>${formatCurrency(par.addOnsTotal)}</span></div>`;
+                        }
+                        html += `<div class="breakdown-line" style="font-weight: bold;"><span>Total PAR:</span><span>${formatCurrency(par.parAmount)}</span></div>`;
+                    } else if (par.type === 'coating') {
+                        html += '<div style="font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #FF9800;">PAR COATING JOB</div>';
+                        html += `<div class="breakdown-line" style="font-weight: bold;"><span>Total PAR:</span><span>${formatCurrency(par.parAmount)}</span></div>`;
+                    }
+                    
+                    html += `<div class="breakdown-line"><span>Allocated Net for this job:</span><span>${formatCurrency(par.allocatedNet)}</span></div>`;
+                    
+                    if (par.allocatedNet >= par.parAmount) {
+                        const basePay = par.parAmount * 0.10;
+                        const overage = par.allocatedNet - par.parAmount;
+                        const overagePay = overage * 0.50;
+                        
+                        html += `<div class="breakdown-line"><span>Overage (Allocated - PAR):</span><span>${formatCurrency(overage)}</span></div>`;
+                        html += `<div class="breakdown-line"><span>Base Pay (10% of PAR):</span><span>${formatCurrency(basePay)}</span></div>`;
+                        html += `<div class="breakdown-line"><span>Overage Pay (50%):</span><span>${formatCurrency(overagePay)}</span></div>`;
+                        html += `<div class="breakdown-line" style="font-weight: bold; background: #4CAF50; color: white; padding: 6px; margin-top: 6px;"><span>Payout for this PAR:</span><span>${formatCurrency(par.payout)}</span></div>`;
+                        
+                        totalCombinedPayout += par.payout;
+                    } else {
+                        html += `<div class="breakdown-line" style="font-weight: bold; color: #f44336;"><span>Status:</span><span>$0.00 (Sold below PAR)</span></div>`;
+                    }
+                    
+                    html += `</div>`;
+                });
+                
+                const totalSalesmen = numVets + numReps;
+                const perPerson = totalSalesmen > 0 ? totalCombinedPayout / totalSalesmen : 0;
+                const totalPeople = numVets + numReps;
+                const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+                const finalPayout = perPerson - rideAlongFeePerPerson;
+                
+                html += `<div class="breakdown-line" style="font-size: 15px; font-weight: bold; background: #FF9800; color: white; padding: 10px; margin: 12px 0;"><span>TOTAL FROM ALL PAR JOBS:</span><span>${formatCurrency(totalCombinedPayout)}</span></div>`;
+                html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perPerson)}</span></div>`;
+                html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
+                html += `<div class="breakdown-line total"><span>Final Per Rep:</span><span>${formatCurrency(finalPayout)}</span></div>`;
+                
+                html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">REP PAYOUTS:</div>';
+                if (repNames.length > 0) {
+                    repNames.forEach(name => {
+                        html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPayout)}</span></div>`;
+                    });
+                } else {
+                    html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No rep names entered</span><span></span></div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+            }
+            
+            const numRideAlongs = parseValue(document.getElementById('numRideAlongs').value);
+            if (numRideAlongs > 0) {
+                const rideAlongBonus = parseValue(document.getElementById('rideAlongBonus').value);
+                const totalRideAlongPayout = rideAlongFee + rideAlongBonus;
+                const perRideAlong = numRideAlongs > 0 ? totalRideAlongPayout / numRideAlongs : 0;
+                
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">RIDE ALONG PAYOUT</div>';
+                
+                if (rideAlongNames.length > 0) {
+                    html += '<div class="breakdown-line" style="font-weight: bold; margin-bottom: 8px;"><span>Ride Alongs:</span><span>' + rideAlongNames.join(', ') + '</span></div>';
+                }
+                
+                html += `<div class="breakdown-line"><span>Ride Along Fee:</span><span>${formatCurrency(rideAlongFee)}</span></div>`;
+                html += `<div class="breakdown-line"><span>+ Ride Along Bonus:</span><span>+${formatCurrency(rideAlongBonus)}</span></div>`;
+                html += `<div class="breakdown-line"><span>= Total Payout:</span><span>${formatCurrency(totalRideAlongPayout)}</span></div>`;
+                html += `<div class="breakdown-line"><span>÷ Number of Ride Alongs (${numRideAlongs}):</span><span>${formatCurrency(perRideAlong)}</span></div>`;
+                html += `<div class="breakdown-line total"><span>Final Per Ride Along:</span><span>${formatCurrency(perRideAlong)}</span></div>`;
+                
+                html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">RIDE ALONG PAYOUTS:</div>';
+                if (rideAlongNames.length > 0) {
+                    rideAlongNames.forEach(name => {
+                        html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(perRideAlong)}</span></div>`;
+                    });
+                } else {
+                    html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No ride along names entered</span><span></span></div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+            }
+            
+                        // Compact payout summary by role (only if there are any names)
+            if (vetNames.length > 0 || repNames.length > 0 || rideAlongNames.length > 0) {
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">PAYOUT SUMMARY BY ROLE</div>';
+                if (vetNames.length > 0) {
+                    html += '<div class="breakdown-line"><span>Vets:</span><span>' + vetNames.join(', ') + '</span></div>';
+                }
+                if (repNames.length > 0) {
+                    html += '<div class="breakdown-line"><span>Reps / PAR Reps:</span><span>' + repNames.join(', ') + '</span></div>';
+                }
+                if (rideAlongNames.length > 0) {
+                    html += '<div class="breakdown-line"><span>Ride Alongs:</span><span>' + rideAlongNames.join(', ') + '</span></div>';
+                }
+                html += '</div>';
+            }
+
+breakdownContent.innerHTML = html;
+        }
+
+        // PAYROLL SUMMARY FUNCTIONS
+        function getCurrentInvoiceData() {
+            const vets = [];
+            const reps = [];
+            const rideAlongs = [];
+            
+            const vetRows = document.querySelectorAll('#vetNamesList .name-row');
+            vetRows.forEach(row => {
+                const select = row.querySelector('.name-select');
+                const input = row.querySelector('.name-input');
+                const amount = row.querySelector('.name-amount');
+                
+                let name = '';
+                if (select && select.style.display !== 'none') {
+                    name = select.value;
+                } else if (input && input.style.display !== 'none') {
+                    name = input.value;
+                }
+                
+                if (name && name !== 'custom' && name.trim()) {
+                    vets.push({
+                        name: name.trim(),
+                        amount: parseValue(amount ? amount.textContent : '0')
+                    });
+                }
+            });
+            
+            const repRows = document.querySelectorAll('#repNamesList .name-row');
+            repRows.forEach(row => {
+                const select = row.querySelector('.name-select');
+                const input = row.querySelector('.name-input');
+                const amount = row.querySelector('.name-amount');
+                
+                let name = '';
+                if (select && select.style.display !== 'none') {
+                    name = select.value;
+                } else if (input && input.style.display !== 'none') {
+                    name = input.value;
+                }
+                
+                if (name && name !== 'custom' && name.trim()) {
+                    reps.push({
+                        name: name.trim(),
+                        amount: parseValue(amount ? amount.textContent : '0')
+                    });
+                }
+            });
+            
+            const raRows = document.querySelectorAll('#rideAlongNamesList .name-row');
+            raRows.forEach(row => {
+                const select = row.querySelector('.name-select');
+                const input = row.querySelector('.name-input');
+                const amount = row.querySelector('.name-amount');
+                
+                let name = '';
+                if (select && select.style.display !== 'none') {
+                    name = select.value;
+                } else if (input && input.style.display !== 'none') {
+                    name = input.value;
+                }
+                
+                if (name && name !== 'custom' && name.trim()) {
+                    rideAlongs.push({
+                        name: name.trim(),
+                        amount: parseValue(amount ? amount.textContent : '0')
+                    });
+                }
+            });
+            
+            const totalVetPayout = vets.reduce((sum, v) => sum + v.amount, 0);
+            const totalRepPayout = reps.reduce((sum, r) => sum + r.amount, 0);
+            const totalRAPayout = rideAlongs.reduce((sum, ra) => sum + ra.amount, 0);
+            const totalPayout = totalVetPayout + totalRepPayout + totalRAPayout;
+
+            const profitBeforePayouts = parseValue(document.getElementById('totalAfterFees').textContent);
+            const totalProfit = profitBeforePayouts - totalPayout;
+            const contractAmount = parseValue(document.getElementById('contractAmount').value);
+            const laborMaterial = parseValue(document.getElementById('totalJobCost').textContent);
+
+            const payPeriodId = document.getElementById('payPeriodSelect').value || '';
+
+return {
+                id: currentInvoiceId || Date.now().toString(),
+                customerName: document.getElementById('customerName').value || 'Untitled',
+                jobNumber: document.getElementById('jobNumber').value || 'N/A',
+                date: document.getElementById('moneyInBank').value || new Date().toISOString().split('T')[0],
+                contractAmount: contractAmount,
+                laborMaterial: laborMaterial,
+                totalProfit: totalProfit,
+                totalPayout: totalPayout,
+                payPeriodId: payPeriodId,
+                vets: vets,
+                reps: reps,
+                rideAlongs: rideAlongs
+            };
+        }
+
+        function saveAndNew() {
+            const invoiceData = getCurrentInvoiceData();
+            
+            const hasData = invoiceData.vets.length > 0 || 
+                           invoiceData.reps.length > 0 || 
+                           invoiceData.rideAlongs.length > 0;
+            
+            if (!hasData) {
+                alert('No payouts to save! Please add at least one vet, rep, or ride along with an amount.');
+                return;
+            }
+            
+            let allInvoices = JSON.parse(localStorage.getItem('altaCalInvoices') || '[]');
+            
+            const existingIndex = allInvoices.findIndex(inv => inv.id === invoiceData.id);
+            if (existingIndex >= 0) {
+                allInvoices[existingIndex] = invoiceData;
+            } else {
+                allInvoices.push(invoiceData);
+            }
+            
+            localStorage.setItem('altaCalInvoices', JSON.stringify(allInvoices));
+            
+            let message = `✅ INVOICE SAVED!\n\n`;
+            message += `Job: ${invoiceData.jobNumber}\n`;
+            message += `Customer: ${invoiceData.customerName}\n`;
+            
+            if (invoiceData.payPeriodId) {
+                const period = payPeriods.find(p => p.id === invoiceData.payPeriodId);
+                if (period) {
+                    message += `Pay Period: ${period.name}\n`;
+                }
+            }
+            
+            message += `Total Payout: ${formatCurrency(invoiceData.totalPayout)}\n`;
+            message += `Total Profit: ${formatCurrency(invoiceData.totalProfit)}\n`;
+            message += `\n📊 Total Saved Invoices: ${allInvoices.length}`;
+            
+            alert(message);
+            
+            currentInvoiceId = null;
+            clearForm();
+        }
+
+        function clearForm() {
+            document.getElementById('customerName').value = '';
+            document.getElementById('jobNumber').value = '';
+            document.getElementById('moneyInBank').value = '';
+            document.getElementById('contractAmount').value = '';
+            document.getElementById('netAmount').value = '';
+            document.getElementById('rideAlongFee').value = '';
+            document.getElementById('rideAlongBonus').value = '';
+            document.getElementById('numVets').value = '';
+            document.getElementById('numReps').value = '';
+            document.getElementById('numRideAlongs').value = '';
+            document.getElementById('payPeriodSelect').value = '';
+            
+            // Reset PAR
+            activePARs.clear();
+            document.getElementById('parGuttersBtn').classList.remove('active');
+            document.getElementById('parInsulationBtn').classList.remove('active');
+            document.getElementById('parCoatingBtn').classList.remove('active');
+            document.getElementById('parGuttersFields').classList.remove('active');
+            document.getElementById('parInsulationFields').classList.remove('active');
+            document.getElementById('parCoatingFields').classList.remove('active');
+            
+            document.getElementById('guttersLF').value = '';
+            document.getElementById('woodLF').value = '';
+            document.getElementById('insulationSF').value = '';
+            document.getElementById('insulationWoodLF').value = '';
+            document.getElementById('parAddOnsList').innerHTML = '';
+            document.getElementById('parInsulationAddOnsList').innerHTML = '';
+            document.getElementById('parCoatingProductsList').innerHTML = '';
+            
+            document.getElementById('invoiceTableBody').innerHTML = '';
+            initializeTable();
+            
+            updateCalculations();
+        }
+
+        function openPayrollSummary() {
+            let allInvoices = JSON.parse(localStorage.getItem('altaCalInvoices') || '[]');
+            
+            if (allInvoices.length === 0) {
+                alert('No saved invoices found!\n\n1. Fill out an invoice\n2. Click "💾 SAVE & NEW"\n3. Then come back to Payroll Summary');
+                return;
+            }
+            
+            renderInvoiceList(allInvoices);
+            document.getElementById('payrollSummaryModal').classList.add('active');
+        }
+
+        function closePayrollSummary() {
+            document.getElementById('payrollSummaryModal').classList.remove('active');
+        }
+
+        function renderInvoiceList(invoices) {
+            const container = document.getElementById('invoiceListContainer');
+            const periodFilter = document.getElementById('periodFilter');
+            
+            periodFilter.innerHTML = '<option value="all">All Invoices</option>';
+            payPeriods.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period.id;
+                option.textContent = period.name;
+                periodFilter.appendChild(option);
+            });
+            
+            if (invoices.length === 0) {
+                container.innerHTML = '<div class="empty-state">No invoices saved yet.</div>';
+                return;
+            }
+            
+            container.innerHTML = invoices.map((inv, index) => {
+                const period = payPeriods.find(p => p.id === inv.payPeriodId);
+                const periodBadge = period ? `<span class="invoice-period-badge">${period.name}</span>` : '';
+                
+                return `
+                    <div class="invoice-item">
+                        <input type="checkbox" id="inv-${inv.id}" checked onchange="updatePayrollSummary()">
+                        <div class="invoice-item-details">
+                            <div class="invoice-item-title">${inv.jobNumber} - ${inv.customerName}</div>
+                            <div class="invoice-item-subtitle">Date: ${inv.date || 'N/A'}</div>
+                        </div>
+                        ${periodBadge}
+                    </div>
+                `;
+            }).join('');
+            
+            updatePayrollSummary();
+        }
+
+        function updatePayrollSummary() {
+            const allInvoices = JSON.parse(localStorage.getItem('altaCalInvoices') || '[]');
+            const periodFilter = document.getElementById('periodFilter').value;
+            
+            let filteredInvoices = allInvoices;
+            if (periodFilter !== 'all') {
+                filteredInvoices = allInvoices.filter(inv => inv.payPeriodId === periodFilter);
+            }
+            
+            const selectedInvoices = filteredInvoices.filter(inv => {
+                const checkbox = document.getElementById(`inv-${inv.id}`);
+                return checkbox && checkbox.checked;
+            });
+            
+            if (selectedInvoices.length === 0) {
+                document.getElementById('summaryTableContainer').innerHTML = '<div class="empty-state">Select at least one invoice to see the summary.</div>';
+                return;
+            }
+            
+            let grandTotalPayout = 0;
+            let grandTotalProfit = 0;
+            let grandTotalLabor = 0;
+            let grandTotalVets = 0;
+            let grandTotalReps = 0;
+            let grandTotalRideAlongs = 0;
+
+            const showLabor = selectedInvoices.some(inv => (inv.laborMaterial || 0) > 0);
+            const showVets = selectedInvoices.some(inv => inv.vets && inv.vets.length > 0);
+            const showReps = selectedInvoices.some(inv => inv.reps && inv.reps.length > 0);
+            const showRideAlongs = selectedInvoices.some(inv => inv.rideAlongs && inv.rideAlongs.length > 0);
+
+            let html = '<table class="summary-table">';
+            html += '<thead><tr>';
+            html += '<th>JOB NUMBER</th>';
+            html += '<th>CUSTOMER NAME</th>';
+            if (showLabor) html += '<th style="text-align: right;">LABOR &amp; MATERIAL</th>';
+            if (showVets) html += '<th style="text-align: right;">VETS</th>';
+            if (showReps) html += '<th style="text-align: right;">REPS / PAR REPS</th>';
+            if (showRideAlongs) html += '<th style="text-align: right;">RIDE ALONGS</th>';
+            html += '<th style="text-align: right;">TOTAL PAYOUT</th>';
+            html += '<th style="text-align: right;">TOTAL PROFIT</th>';
+            html += '</tr></thead>';
+            html += '<tbody>';
+
+            selectedInvoices.forEach(inv => {
+                const laborMaterial = inv.laborMaterial || 0;
+                const vetsTotal = (inv.vets || []).reduce((sum, v) => sum + (v.amount || 0), 0);
+                const repsTotal = (inv.reps || []).reduce((sum, r) => sum + (r.amount || 0), 0);
+                const rideAlongTotal = (inv.rideAlongs || []).reduce((sum, ra) => sum + (ra.amount || 0), 0);
+                const totalPayout = inv.totalPayout || 0;
+                const totalProfit = inv.totalProfit || 0;
+
+                grandTotalLabor += laborMaterial;
+                grandTotalVets += vetsTotal;
+                grandTotalReps += repsTotal;
+                grandTotalRideAlongs += rideAlongTotal;
+                grandTotalPayout += totalPayout;
+                grandTotalProfit += totalProfit;
+
+                html += '<tr>';
+                html += `<td class="job-cell">${inv.jobNumber || 'N/A'}</td>`;
+                html += `<td class="customer-cell">${inv.customerName || 'Untitled'}</td>`;
+                if (showLabor) html += `<td class="amount-cell">${formatCurrency(laborMaterial)}</td>`;
+                if (showVets) html += `<td class="amount-cell">${formatCurrency(vetsTotal)}</td>`;
+                if (showReps) html += `<td class="amount-cell">${formatCurrency(repsTotal)}</td>`;
+                if (showRideAlongs) html += `<td class="amount-cell">${formatCurrency(rideAlongTotal)}</td>`;
+                html += `<td class="amount-cell">${formatCurrency(totalPayout)}</td>`;
+                html += `<td class="amount-cell">${formatCurrency(totalProfit)}</td>`;
+                html += '</tr>';
+            });
+
+            html += '<tr class="total-row grand-total-row">';
+            html += `<td colspan="2" style="text-align: left; font-weight: bold;">TOTALS (${selectedInvoices.length} invoices)</td>`;
+            if (showLabor) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalLabor)}</td>`;
+            if (showVets) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalVets)}</td>`;
+            if (showReps) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalReps)}</td>`;
+            if (showRideAlongs) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalRideAlongs)}</td>`;
+            html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalPayout)}</td>`;
+            html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalProfit)}</td>`;
+            html += '</tr>';
+html += '</tbody></table>';
+            
+            document.getElementById('summaryTableContainer').innerHTML = html;
+        }
+
+        function printPayrollSummary() {
+            const printWindow = window.open('', '_blank');
+            
+            const summaryTable = document.getElementById('summaryTableContainer').innerHTML;
+            
+            const today = new Date().toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            const periodFilter = document.getElementById('periodFilter');
+            const selectedPeriod = periodFilter.options[periodFilter.selectedIndex].text;
+            const periodHeader = selectedPeriod !== 'All Invoices' ? `<div class="period-info">Pay Period: ${selectedPeriod}</div>` : '';
+            
+            const printContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>ALTA CAL - Invoice Ledger</title>
+                    <style>
+                        * {
+                            margin: 0;
+                            padding: 0;
+                            box-sizing: border-box;
+                        }
+                        body {
+                            font-family: Arial, sans-serif;
+                            padding: 40px;
+                            background: white;
+                        }
+                        .header {
+                            text-align: center;
+                            margin-bottom: 30px;
+                            border-bottom: 3px solid #000;
+                            padding-bottom: 20px;
+                        }
+                        h1 {
+                            font-size: 28px;
+                            margin-bottom: 10px;
+                            color: #000;
+                            font-weight: bold;
+                        }
+                        .date {
+                            font-size: 14px;
+                            color: #666;
+                            margin-top: 8px;
+                        }
+                        .period-info {
+                            font-size: 16px;
+                            color: #333;
+                            margin-top: 8px;
+                            font-weight: bold;
+                            background: #f0f0f0;
+                            padding: 8px 16px;
+                            border-radius: 4px;
+                            display: inline-block;
+                        }
+                        .summary-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            margin-top: 30px;
+                        }
+                        .summary-table th {
+                            background: white;
+                            color: black;
+                            border: 2px solid black;
+                            padding: 12px 15px;
+                            text-align: left;
+                            font-size: 14px;
+                            font-weight: bold;
+                        }
+                        .summary-table td {
+                            border: 1px solid black;
+                            padding: 10px 15px;
+                            font-size: 14px;
+                            color: black;
+                        }
+                        .summary-table .job-cell {
+                            font-weight: bold;
+                            font-size: 15px;
+                        }
+                        .summary-table .customer-cell {
+                            font-size: 14px;
+                        }
+                        .summary-table .amount-cell {
+                            font-weight: bold;
+                            font-size: 15px;
+                            text-align: right;
+                        }
+                        .summary-table .grand-total-row {
+                            background: #e0e0e0;
+                            border: 3px solid black;
+                        }
+                        .summary-table .grand-total-row td {
+                            font-size: 17px;
+                            font-weight: bold;
+                            padding: 15px;
+                        }
+                        @page {
+                            margin: 0.5in;
+                            size: letter landscape;
+                        }
+                        @media print {
+                            body {
+                                padding: 20px;
+                            }
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="header">
+                        <h1>ALTA CAL - INVOICE LEDGER</h1>
+                        ${periodHeader}
+                        <div class="date">Generated: ${today}</div>
+                    </div>
+                    ${summaryTable}
+                </body>
+                </html>
+            `;
+            
+            printWindow.document.write(printContent);
+            printWindow.document.close();
+            
+            printWindow.onload = function() {
+                printWindow.focus();
+                printWindow.print();
+                printWindow.close();
+            };
+        }
+
+        function clearAllInvoices() {
+            const count = JSON.parse(localStorage.getItem('altaCalInvoices') || '[]').length;
+            if (confirm(`Delete ALL ${count} saved invoices?\n\nThis will clear all payroll data and cannot be undone!\n\nClick OK to delete, Cancel to keep.`)) {
+                localStorage.removeItem('altaCalInvoices');
+                closePayrollSummary();
+                alert('All invoices cleared! You can now save new invoices with the updated system.');
+            }
+        }
+
+        function saveData() {
+        }
+
+        function loadData() {
+            loadSavedNames();
+            loadPayPeriods();
+            initializeTable();
+        }
+
+        function printInvoice() {
+            generateBreakdown();
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+        document.getElementById('customerName').addEventListener('input', saveData);
+        document.getElementById('jobNumber').addEventListener('input', saveData);
+        document.getElementById('moneyInBank').addEventListener('input', saveData);
+        document.getElementById('contractAmount').addEventListener('input', updateCalculations);
+        document.getElementById('netAmount').addEventListener('input', updateCalculations);
+        document.getElementById('rideAlongFee').addEventListener('input', updateCalculations);
+        document.getElementById('rideAlongBonus').addEventListener('input', updateCalculations);
+        document.getElementById('guttersLF').addEventListener('input', updateCalculations);
+        document.getElementById('woodLF').addEventListener('input', updateCalculations);
+        document.getElementById('insulationSF').addEventListener('input', updateCalculations);
+        document.getElementById('insulationWoodLF').addEventListener('input', updateCalculations);
+        
+        document.getElementById('numVets').addEventListener('input', () => {
+            updateNameFields();
+            updateCalculations();
+        });
+        document.getElementById('numReps').addEventListener('input', () => {
+            updateNameFields();
+            updateCalculations();
+        });
+        document.getElementById('numRideAlongs').addEventListener('input', () => {
+            updateNameFields();
+            updateCalculations();
+        });
+
+        window.addEventListener('click', (event) => {
+            const namesModal = document.getElementById('manageNamesModal');
+            const payrollModal = document.getElementById('payrollSummaryModal');
+            const periodsModal = document.getElementById('payPeriodsModal');
+            
+            if (event.target === namesModal) {
+                closeManageNamesModal();
+            }
+            if (event.target === payrollModal) {
+                closePayrollSummary();
+            }
+            if (event.target === periodsModal) {
+                closePayPeriodsModal();
+            }
+        });
+
+        window.addEventListener('load', loadData);
+    </script>
+</body>
+</html>
