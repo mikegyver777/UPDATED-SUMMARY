@@ -2543,7 +2543,7 @@
             const totalAfterFees = afterHouseFee - netAmountDiff - totalLaborMaterial;
             document.getElementById('totalAfterFees').textContent = formatCurrency(totalAfterFees);
 
-            const profitPercent = contractAmount > 0 ? (totalAfterFees / contractAmount) * 100 : 0;
+            const profitPercent = netAmount > 0 ? (totalAfterFees / netAmount) * 100 : 0;
 
             let vetRate = 25;
             if (profitPercent >= 50) vetRate = 55;
@@ -2801,7 +2801,7 @@
                 const netAmountDiff = contractAmount - netAmount;
                 const afterFeesFromContract = afterHouseFee - netAmountDiff;
                 const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
-                const profitPercent = contractAmount > 0 ? (totalAfterFees / contractAmount) * 100 : 0;
+                const profitPercent = netAmount > 0 ? (totalAfterFees / netAmount) * 100 : 0;
                 
                 let vetRate = 25;
                 if (profitPercent >= 50) vetRate = 55;
@@ -2852,7 +2852,7 @@
                     html += '</div>';
                 }
                 
-                if (numReps > 0 && !usingPAR) {
+                if ((numReps > 0 || repNames.length > 0) && !usingPAR) {
                     let repRate = 20;
                     if (profitPercent >= 50) repRate = 40;
                     else if (profitPercent >= 40) repRate = 30;
@@ -2911,7 +2911,7 @@
                     const netAmountDiff = contractAmount - netAmount;
                     const afterFeesFromContract = afterHouseFee - netAmountDiff;
                     const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
-                    const profitPercent = contractAmount > 0 ? (totalAfterFees / contractAmount) * 100 : 0;
+                    const profitPercent = netAmount > 0 ? (totalAfterFees / netAmount) * 100 : 0;
                     
                     let vetRate = 25;
                     if (profitPercent >= 50) vetRate = 55;
@@ -3072,23 +3072,7 @@
                 html += '</div>';
             }
             
-                        // Compact payout summary by role (only if there are any names)
-            if (vetNames.length > 0 || repNames.length > 0 || rideAlongNames.length > 0) {
-                html += '<div class="breakdown-section">';
-                html += '<div class="breakdown-section-title">PAYOUT SUMMARY BY ROLE</div>';
-                if (vetNames.length > 0) {
-                    html += '<div class="breakdown-line"><span>Vets:</span><span>' + vetNames.join(', ') + '</span></div>';
-                }
-                if (repNames.length > 0) {
-                    html += '<div class="breakdown-line"><span>Reps / PAR Reps:</span><span>' + repNames.join(', ') + '</span></div>';
-                }
-                if (rideAlongNames.length > 0) {
-                    html += '<div class="breakdown-line"><span>Ride Alongs:</span><span>' + rideAlongNames.join(', ') + '</span></div>';
-                }
-                html += '</div>';
-            }
-
-breakdownContent.innerHTML = html;
+            breakdownContent.innerHTML = html;
         }
 
         // PAYROLL SUMMARY FUNCTIONS
@@ -3164,21 +3148,18 @@ breakdownContent.innerHTML = html;
             const totalRepPayout = reps.reduce((sum, r) => sum + r.amount, 0);
             const totalRAPayout = rideAlongs.reduce((sum, ra) => sum + ra.amount, 0);
             const totalPayout = totalVetPayout + totalRepPayout + totalRAPayout;
-
-            const profitBeforePayouts = parseValue(document.getElementById('totalAfterFees').textContent);
-            const totalProfit = profitBeforePayouts - totalPayout;
+            
+            const totalProfit = parseValue(document.getElementById('totalAfterFees').textContent);
             const contractAmount = parseValue(document.getElementById('contractAmount').value);
-            const laborMaterial = parseValue(document.getElementById('totalJobCost').textContent);
-
+            
             const payPeriodId = document.getElementById('payPeriodSelect').value || '';
-
-return {
+            
+            return {
                 id: currentInvoiceId || Date.now().toString(),
                 customerName: document.getElementById('customerName').value || 'Untitled',
                 jobNumber: document.getElementById('jobNumber').value || 'N/A',
                 date: document.getElementById('moneyInBank').value || new Date().toISOString().split('T')[0],
                 contractAmount: contractAmount,
-                laborMaterial: laborMaterial,
                 totalProfit: totalProfit,
                 totalPayout: totalPayout,
                 payPeriodId: payPeriodId,
@@ -3341,66 +3322,38 @@ return {
             
             let grandTotalPayout = 0;
             let grandTotalProfit = 0;
-            let grandTotalLabor = 0;
-            let grandTotalVets = 0;
-            let grandTotalReps = 0;
-            let grandTotalRideAlongs = 0;
-
-            const showLabor = selectedInvoices.some(inv => (inv.laborMaterial || 0) > 0);
-            const showVets = selectedInvoices.some(inv => inv.vets && inv.vets.length > 0);
-            const showReps = selectedInvoices.some(inv => inv.reps && inv.reps.length > 0);
-            const showRideAlongs = selectedInvoices.some(inv => inv.rideAlongs && inv.rideAlongs.length > 0);
-
+            
             let html = '<table class="summary-table">';
             html += '<thead><tr>';
             html += '<th>JOB NUMBER</th>';
             html += '<th>CUSTOMER NAME</th>';
-            if (showLabor) html += '<th style="text-align: right;">LABOR &amp; MATERIAL</th>';
-            if (showVets) html += '<th style="text-align: right;">VETS</th>';
-            if (showReps) html += '<th style="text-align: right;">REPS / PAR REPS</th>';
-            if (showRideAlongs) html += '<th style="text-align: right;">RIDE ALONGS</th>';
             html += '<th style="text-align: right;">TOTAL PAYOUT</th>';
             html += '<th style="text-align: right;">TOTAL PROFIT</th>';
             html += '</tr></thead>';
             html += '<tbody>';
-
+            
             selectedInvoices.forEach(inv => {
-                const laborMaterial = inv.laborMaterial || 0;
-                const vetsTotal = (inv.vets || []).reduce((sum, v) => sum + (v.amount || 0), 0);
-                const repsTotal = (inv.reps || []).reduce((sum, r) => sum + (r.amount || 0), 0);
-                const rideAlongTotal = (inv.rideAlongs || []).reduce((sum, ra) => sum + (ra.amount || 0), 0);
                 const totalPayout = inv.totalPayout || 0;
                 const totalProfit = inv.totalProfit || 0;
-
-                grandTotalLabor += laborMaterial;
-                grandTotalVets += vetsTotal;
-                grandTotalReps += repsTotal;
-                grandTotalRideAlongs += rideAlongTotal;
+                
                 grandTotalPayout += totalPayout;
                 grandTotalProfit += totalProfit;
-
+                
                 html += '<tr>';
                 html += `<td class="job-cell">${inv.jobNumber || 'N/A'}</td>`;
                 html += `<td class="customer-cell">${inv.customerName || 'Untitled'}</td>`;
-                if (showLabor) html += `<td class="amount-cell">${formatCurrency(laborMaterial)}</td>`;
-                if (showVets) html += `<td class="amount-cell">${formatCurrency(vetsTotal)}</td>`;
-                if (showReps) html += `<td class="amount-cell">${formatCurrency(repsTotal)}</td>`;
-                if (showRideAlongs) html += `<td class="amount-cell">${formatCurrency(rideAlongTotal)}</td>`;
                 html += `<td class="amount-cell">${formatCurrency(totalPayout)}</td>`;
                 html += `<td class="amount-cell">${formatCurrency(totalProfit)}</td>`;
                 html += '</tr>';
             });
-
+            
             html += '<tr class="total-row grand-total-row">';
             html += `<td colspan="2" style="text-align: left; font-weight: bold;">TOTALS (${selectedInvoices.length} invoices)</td>`;
-            if (showLabor) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalLabor)}</td>`;
-            if (showVets) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalVets)}</td>`;
-            if (showReps) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalReps)}</td>`;
-            if (showRideAlongs) html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalRideAlongs)}</td>`;
             html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalPayout)}</td>`;
             html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalProfit)}</td>`;
             html += '</tr>';
-html += '</tbody></table>';
+            
+            html += '</tbody></table>';
             
             document.getElementById('summaryTableContainer').innerHTML = html;
         }
