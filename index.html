@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2832,7 +2834,7 @@
                     html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE)</div>';
                     
                     html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit):</span><span>${vetRate}%</span></div>`;
+                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${vetRate}%</span></div>`;
                     html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
                     html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
                     html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
@@ -2869,7 +2871,7 @@
                     html += '<div class="breakdown-section-title">REP PAYOUT (PROFIT SHARE)</div>';
                     
                     html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>Rep Rate (based on ${profitPercent.toFixed(2)}% profit):</span><span>${repRate}%</span></div>`;
+                    html += `<div class="breakdown-line"><span>Rep Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${repRate}%</span></div>`;
                     html += `<div class="breakdown-line"><span>Total Rep Commission:</span><span>${formatCurrency(totalRepCommission)}</span></div>`;
                     html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perRepBeforeFees)}</span></div>`;
                     html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
@@ -2928,7 +2930,7 @@
                     html += '<div class="breakdown-section">';
                     html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE - NOT PAR)</div>';
                     html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit):</span><span>${vetRate}%</span></div>`;
+                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${vetRate}%</span></div>`;
                     html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
                     html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
                     html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
