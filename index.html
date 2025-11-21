@@ -1653,7 +1653,7 @@
     </div>
 
     <script>
-        let activePARs = new Set(); // Can track multiple active PAR types
+        let activePARs = new Set();
         let currentInvoiceId = null;
 
         let savedNames = {
@@ -1676,9 +1676,16 @@
         }
 
         function loadPayPeriods() {
-            const stored = localStorage.getItem('altaCalPayPeriods');
-            if (stored) {
-                payPeriods = JSON.parse(stored);
+            try {
+                const stored = localStorage.getItem('altaCalPayPeriods');
+                console.log('Loading pay periods from storage:', stored);
+                if (stored) {
+                    payPeriods = JSON.parse(stored);
+                    console.log('Parsed pay periods:', payPeriods);
+                }
+            } catch (e) {
+                console.error('Error loading pay periods:', e);
+                payPeriods = [];
             }
             updatePayPeriodSelects();
         }
@@ -1689,33 +1696,40 @@
         }
 
         function updatePayPeriodSelects() {
-            const selects = [
-                document.getElementById('payPeriodSelect'),
-                document.getElementById('periodFilter')
-            ];
+            const payPeriodSelect = document.getElementById('payPeriodSelect');
+            const periodFilter = document.getElementById('periodFilter');
+            
+            if (!payPeriodSelect) {
+                console.error('payPeriodSelect not found');
+                return;
+            }
 
-            const currentValue = document.getElementById('payPeriodSelect').value;
-
-            selects.forEach(select => {
-                if (select.id === 'payPeriodSelect') {
-                    select.innerHTML = '<option value="">None / Not Assigned</option>';
-                    payPeriods.forEach(period => {
-                        const option = document.createElement('option');
-                        option.value = period.id;
-                        option.textContent = period.name;
-                        select.appendChild(option);
-                    });
-                    select.value = currentValue;
-                } else if (select.id === 'periodFilter') {
-                    select.innerHTML = '<option value="all">All Invoices</option>';
-                    payPeriods.forEach(period => {
-                        const option = document.createElement('option');
-                        option.value = period.id;
-                        option.textContent = period.name;
-                        select.appendChild(option);
-                    });
-                }
+            const currentValue = payPeriodSelect.value;
+            
+            // Update main pay period select
+            payPeriodSelect.innerHTML = '<option value="">None / Not Assigned</option>';
+            payPeriods.forEach(period => {
+                const option = document.createElement('option');
+                option.value = period.id;
+                option.textContent = period.name;
+                payPeriodSelect.appendChild(option);
+                console.log('Added pay period option:', period.name, 'with ID:', period.id);
             });
+            payPeriodSelect.value = currentValue;
+            
+            // Update filter select if it exists
+            if (periodFilter) {
+                periodFilter.innerHTML = '<option value="all">All Invoices</option>';
+                payPeriods.forEach(period => {
+                    const option = document.createElement('option');
+                    option.value = period.id;
+                    option.textContent = period.name;
+                    periodFilter.appendChild(option);
+                });
+            }
+            
+            console.log('Pay period selects updated with', payPeriods.length, 'periods');
+            console.log('Dropdown now has', payPeriodSelect.options.length, 'total options');
         }
 
         function openPayPeriodsModal() {
@@ -2116,14 +2130,12 @@
         }
 
         function togglePAR(parType) {
-            // Toggle the PAR type in the Set
             if (activePARs.has(parType)) {
                 activePARs.delete(parType);
             } else {
                 activePARs.add(parType);
             }
             
-            // Update UI based on active PARs
             if (activePARs.has('gutters')) {
                 document.getElementById('parGuttersBtn').classList.add('active');
                 document.getElementById('parGuttersFields').classList.add('active');
@@ -2585,9 +2597,6 @@
 
             let finalPerRep = 0;
             
-            // ALWAYS calculate and display PAR amounts (even when buttons aren't active)
-            // This lets users see totals as they fill in quantities
-            
             // Calculate Gutters PAR display
             const guttersLF_display = parseValue(document.getElementById('guttersLF').value);
             const woodLF_display = parseValue(document.getElementById('woodLF').value);
@@ -2639,14 +2648,11 @@
             });
             document.getElementById('parCoatingAmount').textContent = formatCurrency(coatingTotal_display);
             
-            // Check if any PAR types are active FOR PAYOUT CALCULATIONS
             const usingPAR = activePARs.size > 0 && numReps > 0;
             
             if (usingPAR) {
-                // Build parCalculations from active PARs only
                 let parCalculations = [];
                 
-                // Calculate Gutters PAR if active (reuse display calculations)
                 if (activePARs.has('gutters')) {
                     parCalculations.push({
                         type: 'gutters',
@@ -2657,7 +2663,6 @@
                     });
                 }
                 
-                // Calculate Insulation PAR if active (reuse display calculations)
                 if (activePARs.has('insulation')) {
                     parCalculations.push({
                         type: 'insulation',
@@ -2668,7 +2673,6 @@
                     });
                 }
                 
-                // Calculate Coating PAR if active (reuse display calculations)
                 if (activePARs.has('coating')) {
                     parCalculations.push({
                         type: 'coating',
@@ -2676,13 +2680,11 @@
                     });
                 }
                 
-                // Now calculate combined PAR payout
                 const numActivePARs = parCalculations.length;
                 const allocatedNetPerPAR = numActivePARs > 0 ? netAmount / numActivePARs : 0;
                 
                 let totalPARGross = 0;
                 
-                // Calculate payout for each PAR
                 parCalculations.forEach(par => {
                     let parGross = 0;
                     
@@ -2698,7 +2700,6 @@
                     totalPARGross += parGross;
                 });
                 
-                // Store for breakdown generation
                 window.currentPARCalculations = parCalculations;
                 
                 const parPerPerson = totalSalesmen > 0 ? totalPARGross / totalSalesmen : 0;
@@ -2707,7 +2708,6 @@
                 document.getElementById('repRateBox').style.display = 'none';
                 
             } else {
-                // Standard profit share calculation
                 window.currentPARCalculations = null;
                 
                 const totalRepCommission = (totalAfterFees * repRate) / 100;
@@ -2732,6 +2732,29 @@
             updateNameFields();
             generateBreakdown();
             saveData();
+        }
+
+        // Helper function to get labor & materials line items
+        function getLaborMaterialItems() {
+            const items = [];
+            const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
+            for (let row of rows) {
+                const itemCell = row.cells[0];
+                const costCell = row.cells[1];
+                const itemInput = itemCell.querySelector('input[type="text"]');
+                const costInput = costCell.querySelector('input[type="number"]');
+                
+                const itemName = itemInput ? itemInput.value.trim() : '';
+                const itemCost = parseValue(costInput ? costInput.value : '');
+                
+                if (itemName || itemCost > 0) {
+                    items.push({
+                        name: itemName || 'Unnamed Item',
+                        cost: itemCost
+                    });
+                }
+            }
+            return items;
         }
 
         function generateBreakdown() {
@@ -2776,38 +2799,61 @@
             
             let html = '';
             
+            // JOB INFORMATION
             html += '<div class="breakdown-section">';
             html += '<div class="breakdown-section-title">JOB INFORMATION</div>';
             html += `<div class="breakdown-line"><span>Customer Name:</span><span>${customerName}</span></div>`;
             html += `<div class="breakdown-line"><span>Job Number:</span><span>${jobNumber}</span></div>`;
             html += '</div>';
             
+            // LABOR & MATERIALS DETAIL - NEW SECTION
+            const laborItems = getLaborMaterialItems();
+            if (laborItems.length > 0) {
+                let laborTotal = 0;
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">LABOR & MATERIALS</div>';
+                
+                laborItems.forEach(item => {
+                    html += `<div class="breakdown-line"><span>${item.name}:</span><span>${formatCurrency(item.cost)}</span></div>`;
+                    laborTotal += item.cost;
+                });
+                
+                html += `<div class="breakdown-line total"><span>TOTAL LABOR & MATERIALS:</span><span>${formatCurrency(laborTotal)}</span></div>`;
+                html += '</div>';
+            }
+            
             const usingPAR = activePARs.size > 0 && numReps > 0;
             
-            if (!usingPAR && numVets > 0) {
-                const totalFees = contractAmount - netAmount;
-                const houseFeePercent = contractAmount <= 20000 ? 10 : contractAmount <= 30000 ? 9 : 8;
-                const houseFeeAmount = (contractAmount * houseFeePercent) / 100;
-                
-                const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
-                let totalLaborMaterial = 0;
-                for (let row of rows) {
-                    const costCell = row.cells[1];
-                    const costInput = costCell.querySelector('input[type="number"]');
-                    totalLaborMaterial += parseValue(costInput ? costInput.value : '');
-                }
-                
-                const afterHouseFee = contractAmount - houseFeeAmount;
-                const netAmountDiff = contractAmount - netAmount;
-                const afterFeesFromContract = afterHouseFee - netAmountDiff;
-                const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
-                const profitPercent = netAmount > 0 ? (totalAfterFees / netAmount) * 100 : 0;
-                
-                let vetRate = 25;
-                if (profitPercent >= 50) vetRate = 55;
-                else if (profitPercent >= 40) vetRate = 45;
-                else if (profitPercent >= 33) vetRate = 35;
-                
+            // Calculate shared values
+            const houseFeePercent = contractAmount <= 20000 ? 10 : contractAmount <= 30000 ? 9 : 8;
+            const houseFeeAmount = (contractAmount * houseFeePercent) / 100;
+            
+            const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
+            let totalLaborMaterial = 0;
+            for (let row of rows) {
+                const costCell = row.cells[1];
+                const costInput = costCell.querySelector('input[type="number"]');
+                totalLaborMaterial += parseValue(costInput ? costInput.value : '');
+            }
+            
+            const afterHouseFee = contractAmount - houseFeeAmount;
+            const netAmountDiff = contractAmount - netAmount;
+            const afterFeesFromContract = afterHouseFee - netAmountDiff;
+            const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
+            const profitPercent = netAmount > 0 ? (totalAfterFees / netAmount) * 100 : 0;
+            
+            let vetRate = 25;
+            if (profitPercent >= 50) vetRate = 55;
+            else if (profitPercent >= 40) vetRate = 45;
+            else if (profitPercent >= 33) vetRate = 35;
+            
+            let repRate = 20;
+            if (profitPercent >= 50) repRate = 40;
+            else if (profitPercent >= 40) repRate = 30;
+            else if (profitPercent >= 33) repRate = 25;
+            
+            // CONTRACT & FEES section - show when we have vets OR (reps without PAR)
+            if (numVets > 0 || (numReps > 0 && !usingPAR)) {
                 html += '<div class="breakdown-section">';
                 html += '<div class="breakdown-section-title">CONTRACT & FEES</div>';
                 html += `<div class="breakdown-line"><span>Contract Amount:</span><span>${formatCurrency(contractAmount)}</span></div>`;
@@ -2818,106 +2864,80 @@
                 html += `<div class="breakdown-line"><span>- Job Cost (Labor & Materials):</span><span>-${formatCurrency(totalLaborMaterial)}</span></div>`;
                 html += `<div class="breakdown-line total"><span>= After All Fees (Profit Pool):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
                 html += '</div>';
-                
-                if (numVets > 0) {
-                    
-                    const totalSalesmen = numVets + numReps;
-                    const totalVetCommission = (totalAfterFees * vetRate) / 100;
-                    const perVetBeforeFees = totalSalesmen > 0 ? totalVetCommission / totalSalesmen : 0;
-                    const totalPeople = numVets + numReps;
-                    const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
-                    const finalPerVet = perVetBeforeFees - rideAlongFeePerPerson;
-                    
-                    html += '<div class="breakdown-section">';
-                    html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE)</div>';
-                    
-                    html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${vetRate}%</span></div>`;
-                    html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
-                    html += `<div class="breakdown-line total"><span>Final Per Vet:</span><span>${formatCurrency(finalPerVet)}</span></div>`;
-                    
-                    html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
-                    html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">VET PAYOUTS:</div>';
-                    if (vetNames.length > 0) {
-                        vetNames.forEach(name => {
-                            html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerVet)}</span></div>`;
-                        });
-                    } else {
-                        html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No vet names entered</span><span></span></div>';
-                    }
-                    html += '</div>';
-                    
-                    html += '</div>';
-                }
-                
-                if ((numReps > 0 || repNames.length > 0) && !usingPAR) {
-                    let repRate = 20;
-                    if (profitPercent >= 50) repRate = 40;
-                    else if (profitPercent >= 40) repRate = 30;
-                    else if (profitPercent >= 33) repRate = 25;
-                    
-                    const totalSalesmen = numVets + numReps;
-                    const totalRepCommission = (totalAfterFees * repRate) / 100;
-                    const perRepBeforeFees = totalSalesmen > 0 ? totalRepCommission / totalSalesmen : 0;
-                    const totalPeople = numVets + numReps;
-                    const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
-                    const finalPerRep = perRepBeforeFees - rideAlongFeePerPerson;
-                    
-                    html += '<div class="breakdown-section">';
-                    html += '<div class="breakdown-section-title">REP PAYOUT (PROFIT SHARE)</div>';
-                    
-                    html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>Rep Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${repRate}%</span></div>`;
-                    html += `<div class="breakdown-line"><span>Total Rep Commission:</span><span>${formatCurrency(totalRepCommission)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perRepBeforeFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
-                    html += `<div class="breakdown-line total"><span>Final Per Rep:</span><span>${formatCurrency(finalPerRep)}</span></div>`;
-                    
-                    html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
-                    html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">REP PAYOUTS:</div>';
-                    if (repNames.length > 0) {
-                        repNames.forEach(name => {
-                            html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerRep)}</span></div>`;
-                        });
-                    } else {
-                        html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No rep names entered</span><span></span></div>';
-                    }
-                    html += '</div>';
-                    
-                    html += '</div>';
-                }
             }
             
-            // Use PAR calculation from above (already declared usingPAR)
+            // VET PAYOUT - show if we have vets
+            if (numVets > 0) {
+                const totalSalesmen = numVets + numReps;
+                const totalVetCommission = (totalAfterFees * vetRate) / 100;
+                const perVetBeforeFees = totalSalesmen > 0 ? totalVetCommission / totalSalesmen : 0;
+                const totalPeople = numVets + numReps;
+                const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+                const finalPerVet = perVetBeforeFees - rideAlongFeePerPerson;
+                
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE)</div>';
+                
+                html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
+                html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${vetRate}%</span></div>`;
+                html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
+                html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
+                html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
+                html += `<div class="breakdown-line total"><span>Final Per Vet:</span><span>${formatCurrency(finalPerVet)}</span></div>`;
+                
+                html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">VET PAYOUTS:</div>';
+                if (vetNames.length > 0) {
+                    vetNames.forEach(name => {
+                        html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerVet)}</span></div>`;
+                    });
+                } else {
+                    html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No vet names entered</span><span></span></div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+            }
+            
+            // REP PAYOUT - STANDARD (Non-PAR) - FIXED: Now shows even without vets
+            if (numReps > 0 && !usingPAR) {
+                const totalSalesmen = numVets + numReps;
+                const totalRepCommission = (totalAfterFees * repRate) / 100;
+                const perRepBeforeFees = totalSalesmen > 0 ? totalRepCommission / totalSalesmen : 0;
+                const totalPeople = numVets + numReps;
+                const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
+                const finalPerRep = perRepBeforeFees - rideAlongFeePerPerson;
+                
+                html += '<div class="breakdown-section">';
+                html += '<div class="breakdown-section-title">REP PAYOUT (PROFIT SHARE)</div>';
+                
+                html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
+                html += `<div class="breakdown-line"><span>Rep Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${repRate}%</span></div>`;
+                html += `<div class="breakdown-line"><span>Total Rep Commission:</span><span>${formatCurrency(totalRepCommission)}</span></div>`;
+                html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perRepBeforeFees)}</span></div>`;
+                html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
+                html += `<div class="breakdown-line total"><span>Final Per Rep:</span><span>${formatCurrency(finalPerRep)}</span></div>`;
+                
+                html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
+                html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">REP PAYOUTS:</div>';
+                if (repNames.length > 0) {
+                    repNames.forEach(name => {
+                        html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerRep)}</span></div>`;
+                    });
+                } else {
+                    html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No rep names entered</span><span></span></div>';
+                }
+                html += '</div>';
+                
+                html += '</div>';
+            }
+            
+            // PAR-based rep payout
             if (usingPAR && window.currentPARCalculations) {
                 const totalFees = contractAmount - netAmount;
                 
-                // If there are vets, show their profit share payout FIRST (vets don't use PAR)
+                // If there are vets with PAR, show their profit share payout (vets don't use PAR)
                 if (numVets > 0) {
-                    const houseFeePercent = contractAmount <= 20000 ? 10 : contractAmount <= 30000 ? 9 : 8;
-                    const houseFeeAmount = (contractAmount * houseFeePercent) / 100;
-                    
-                    const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
-                    let totalLaborMaterial = 0;
-                    for (let row of rows) {
-                        const costCell = row.cells[1];
-                        const costInput = costCell.querySelector('input[type="number"]');
-                        totalLaborMaterial += parseValue(costInput ? costInput.value : '');
-                    }
-                    
-                    const afterHouseFee = contractAmount - houseFeeAmount;
-                    const netAmountDiff = contractAmount - netAmount;
-                    const afterFeesFromContract = afterHouseFee - netAmountDiff;
-                    const totalAfterFees = afterFeesFromContract - totalLaborMaterial;
-                    const profitPercent = netAmount > 0 ? (totalAfterFees / netAmount) * 100 : 0;
-                    
-                    let vetRate = 25;
-                    if (profitPercent >= 50) vetRate = 55;
-                    else if (profitPercent >= 40) vetRate = 45;
-                    else if (profitPercent >= 33) vetRate = 35;
-                    
                     const totalSalesmen = numVets + numReps;
                     const totalVetCommission = (totalAfterFees * vetRate) / 100;
                     const perVetBeforeFees = totalSalesmen > 0 ? totalVetCommission / totalSalesmen : 0;
@@ -2925,26 +2945,7 @@
                     const rideAlongFeePerPerson = totalPeople > 0 ? rideAlongFee / totalPeople : 0;
                     const finalPerVet = perVetBeforeFees - rideAlongFeePerPerson;
                     
-                    html += '<div class="breakdown-section">';
-                    html += '<div class="breakdown-section-title">VET PAYOUT (PROFIT SHARE - NOT PAR)</div>';
-                    html += `<div class="breakdown-line"><span>Profit Pool (After All Fees):</span><span>${formatCurrency(totalAfterFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>Vet Rate (based on ${profitPercent.toFixed(2)}% profit = ${formatCurrency(totalAfterFees)} ÷ ${formatCurrency(netAmount)}):</span><span>${vetRate}%</span></div>`;
-                    html += `<div class="breakdown-line"><span>Total Vet Commission:</span><span>${formatCurrency(totalVetCommission)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>÷ Total Salesmen (${totalSalesmen}):</span><span>${formatCurrency(perVetBeforeFees)}</span></div>`;
-                    html += `<div class="breakdown-line"><span>- Ride Along Fee Share:</span><span>-${formatCurrency(rideAlongFeePerPerson)}</span></div>`;
-                    html += `<div class="breakdown-line total"><span>Final Per Vet:</span><span>${formatCurrency(finalPerVet)}</span></div>`;
-                    
-                    html += '<div style="margin-top: 10px; padding-top: 10px; border-top: 2px solid black;">';
-                    html += '<div style="font-weight: bold; margin-bottom: 12px; font-size: 16px;">VET PAYOUTS:</div>';
-                    if (vetNames.length > 0) {
-                        vetNames.forEach(name => {
-                            html += `<div class="breakdown-line" style="margin-bottom: 8px;"><span style="font-size: 24px; font-weight: bold;">${name}:</span><span style="font-size: 18px; font-weight: bold;">${formatCurrency(finalPerVet)}</span></div>`;
-                        });
-                    } else {
-                        html += '<div class="breakdown-line" style="font-size: 14px; font-style: italic;"><span>No vet names entered</span><span></span></div>';
-                    }
-                    html += '</div>';
-                    html += '</div>';
+                    // This section already rendered above in the numVets > 0 block
                 }
                 
                 html += '<div class="breakdown-section">';
@@ -2969,7 +2970,6 @@
                 
                 let totalCombinedPayout = 0;
                 
-                // Show each PAR calculation
                 parCalcs.forEach((par, index) => {
                     html += `<div style="margin: 15px 0; padding: 12px; background: #f9f9f9; border: 2px solid #FF9800;">`;
                     
@@ -3039,6 +3039,7 @@
                 html += '</div>';
             }
             
+            // RIDE ALONG PAYOUT
             const numRideAlongs = parseValue(document.getElementById('numRideAlongs').value);
             if (numRideAlongs > 0) {
                 const rideAlongBonus = parseValue(document.getElementById('rideAlongBonus').value);
@@ -3151,6 +3152,19 @@
             
             const totalProfit = parseValue(document.getElementById('totalAfterFees').textContent);
             const contractAmount = parseValue(document.getElementById('contractAmount').value);
+            const netAmount = parseValue(document.getElementById('netAmount').value);
+            
+            // Calculate total labor & materials
+            const rows = document.getElementById('invoiceTableBody').getElementsByTagName('tr');
+            let totalLaborMaterial = 0;
+            for (let row of rows) {
+                const costCell = row.cells[1];
+                const costInput = costCell.querySelector('input[type="number"]');
+                totalLaborMaterial += parseValue(costInput ? costInput.value : '');
+            }
+            
+            // Ledger profit = Net Amount - Labor & Materials (house fee stays as company profit)
+            const ledgerProfit = netAmount - totalLaborMaterial;
             
             const payPeriodId = document.getElementById('payPeriodSelect').value || '';
             
@@ -3160,7 +3174,9 @@
                 jobNumber: document.getElementById('jobNumber').value || 'N/A',
                 date: document.getElementById('moneyInBank').value || new Date().toISOString().split('T')[0],
                 contractAmount: contractAmount,
+                totalLaborMaterial: totalLaborMaterial,
                 totalProfit: totalProfit,
+                ledgerProfit: ledgerProfit,
                 totalPayout: totalPayout,
                 payPeriodId: payPeriodId,
                 vets: vets,
@@ -3226,7 +3242,6 @@
             document.getElementById('numRideAlongs').value = '';
             document.getElementById('payPeriodSelect').value = '';
             
-            // Reset PAR
             activePARs.clear();
             document.getElementById('parGuttersBtn').classList.remove('active');
             document.getElementById('parInsulationBtn').classList.remove('active');
@@ -3322,11 +3337,12 @@
             
             let grandTotalPayout = 0;
             let grandTotalProfit = 0;
+            let grandTotalLaborMaterial = 0;
             
             let html = '<table class="summary-table">';
             html += '<thead><tr>';
             html += '<th>JOB NUMBER</th>';
-            html += '<th>CUSTOMER NAME</th>';
+            html += '<th style="text-align: right;">LABOR & MATERIALS</th>';
             html += '<th style="text-align: right;">TOTAL PAYOUT</th>';
             html += '<th style="text-align: right;">TOTAL PROFIT</th>';
             html += '</tr></thead>';
@@ -3334,21 +3350,24 @@
             
             selectedInvoices.forEach(inv => {
                 const totalPayout = inv.totalPayout || 0;
-                const totalProfit = inv.totalProfit || 0;
+                const ledgerProfit = inv.ledgerProfit || inv.totalProfit || 0;
+                const totalLaborMaterial = inv.totalLaborMaterial || 0;
                 
                 grandTotalPayout += totalPayout;
-                grandTotalProfit += totalProfit;
+                grandTotalProfit += ledgerProfit;
+                grandTotalLaborMaterial += totalLaborMaterial;
                 
                 html += '<tr>';
                 html += `<td class="job-cell">${inv.jobNumber || 'N/A'}</td>`;
-                html += `<td class="customer-cell">${inv.customerName || 'Untitled'}</td>`;
+                html += `<td class="amount-cell">${formatCurrency(totalLaborMaterial)}</td>`;
                 html += `<td class="amount-cell">${formatCurrency(totalPayout)}</td>`;
-                html += `<td class="amount-cell">${formatCurrency(totalProfit)}</td>`;
+                html += `<td class="amount-cell">${formatCurrency(ledgerProfit)}</td>`;
                 html += '</tr>';
             });
             
             html += '<tr class="total-row grand-total-row">';
-            html += `<td colspan="2" style="text-align: left; font-weight: bold;">TOTALS (${selectedInvoices.length} invoices)</td>`;
+            html += `<td style="text-align: left; font-weight: bold;">TOTALS (${selectedInvoices.length} invoices)</td>`;
+            html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalLaborMaterial)}</td>`;
             html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalPayout)}</td>`;
             html += `<td style="text-align: right; font-weight: bold;">${formatCurrency(grandTotalProfit)}</td>`;
             html += '</tr>';
@@ -3441,9 +3460,6 @@
                             font-weight: bold;
                             font-size: 15px;
                         }
-                        .summary-table .customer-cell {
-                            font-size: 14px;
-                        }
                         .summary-table .amount-cell {
                             font-weight: bold;
                             font-size: 15px;
@@ -3503,9 +3519,11 @@
         }
 
         function loadData() {
+            console.log('Loading data...');
             loadSavedNames();
             loadPayPeriods();
             initializeTable();
+            console.log('Data loaded successfully');
         }
 
         function printInvoice() {
@@ -3556,7 +3574,20 @@
             }
         });
 
-        window.addEventListener('load', loadData);
+        // Use both DOMContentLoaded and load to ensure data loads
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', loadData);
+        } else {
+            // DOM already loaded, run immediately
+            loadData();
+        }
+        
+        window.addEventListener('load', function() {
+            // Double-check pay periods are loaded after everything is ready
+            if (payPeriods.length === 0) {
+                loadPayPeriods();
+            }
+        });
     </script>
 </body>
 </html>
